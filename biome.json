@@ -1,0 +1,20 @@
+{
+	"$schema": "https://biomejs.dev/schemas/1.8.3/schema.json",
+	"javascript": {
+		"formatter": {
+			"semicolons": "asNeeded"
+		}
+	},
+	"organizeImports": {
+		"enabled": true
+	},
+	"linter": {
+		"enabled": true,
+		"rules": {
+			"recommended": true,
+			"complexity": {
+				"noForEach": "off"
+			}
+		}
+	}
+}
