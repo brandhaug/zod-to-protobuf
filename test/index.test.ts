@@ -402,6 +402,184 @@ message Prefix_ExampleMessage {
 		expect(protoDefinition).toBe(expectedProto)
 	})
 
+	it("should handle sets", () => {
+		const schema = z.object({
+			uniqueTags: z.set(z.string()),
+		})
+
+		const expectedProto = `
+syntax = "proto3";
+package default;
+
+message Message {
+    repeated string uniqueTags = 1;
+}`
+
+		const proto = zodToProtobuf(schema)
+		expect(proto).toBe(expectedProto.trim())
+	})
+
+	it("should handle tuples", () => {
+		const schema = z.object({
+			coordinates: z.tuple([z.number(), z.number()]),
+		})
+
+		const expectedProto = `
+syntax = "proto3";
+package default;
+
+message Coordinates {
+       double coordinates_0 = 1;
+       double coordinates_1 = 2;
+}
+
+message Message {
+    Coordinates coordinates = 1;
+}`
+
+		const proto = zodToProtobuf(schema)
+		expect(proto).toBe(expectedProto.trim())
+	})
+
+	it("should handle tuples with 3 elements", () => {
+		const schema = z.object({
+			coordinates: z.tuple([
+				z.number(),
+				z.string(),
+				z.object({ a: z.string() }),
+			]),
+		})
+
+		const expectedProto = `
+syntax = "proto3";
+package default;
+
+message Coordinates_2 {
+    string a = 1;
+}
+
+message Coordinates {
+       double coordinates_0 = 1;
+       string coordinates_1 = 2;
+       Coordinates_2 coordinates_2 = 3;
+}
+
+message Message {
+    Coordinates coordinates = 1;
+}`
+
+		const proto = zodToProtobuf(schema)
+		expect(proto).toBe(expectedProto.trim())
+	})
+
+	it("should handle map with string key and value", () => {
+		const schema = z.object({
+			metadata: z.map(z.string(), z.string()),
+		})
+
+		const expectedProto = `
+syntax = "proto3";
+package default;
+
+message Message {
+    map<string, string> metadata = 1;
+}`
+
+		const proto = zodToProtobuf(schema)
+		expect(proto).toBe(expectedProto.trim())
+	})
+
+	it("should handle map with number key", () => {
+		const schema = z.object({
+			metadata: z.map(z.number().int(), z.string()),
+		})
+
+		const expectedProto = `
+syntax = "proto3";
+package default;
+
+message Message {
+    map<int32, string> metadata = 1;
+}`
+
+		const proto = zodToProtobuf(schema)
+		expect(proto).toBe(expectedProto.trim())
+	})
+
+	it("should handle big integers", () => {
+		const schema = z.object({
+			largeNumber: z.bigint(),
+		})
+
+		const expectedProto = `
+syntax = "proto3";
+package default;
+
+message Message {
+    int64 largeNumber = 1;
+}`
+
+		const proto = zodToProtobuf(schema)
+		expect(proto).toBe(expectedProto.trim())
+	})
+
+	it("should handle map with object value", () => {
+		const schema = z.object({
+			metadata: z.map(
+				z.string(),
+				z.object({
+					value: z.string(),
+					timestamp: z.date(),
+				}),
+			),
+		})
+
+		const expectedProto = `
+syntax = "proto3";
+package default;
+
+message MetadataValue {
+    string value = 1;
+    string timestamp = 2;
+}
+
+message Message {
+    map<string, MetadataValue> metadata = 1;
+}`
+
+		const proto = zodToProtobuf(schema)
+		expect(proto).toBe(expectedProto.trim())
+	})
+
+	it("should handle 2D set with object", () => {
+		const schema = z.object({
+			matrix: z.set(
+				z.set(
+					z.object({
+						value: z.string(),
+						count: z.number().int(),
+					}),
+				),
+			),
+		})
+
+		const expectedProto = `
+syntax = "proto3";
+package default;
+
+message Matrix {
+    string value = 1;
+    int32 count = 2;
+}
+
+message Message {
+    repeated repeated Matrix matrix = 1;
+}`
+
+		const proto = zodToProtobuf(schema)
+		expect(proto).toBe(expectedProto.trim())
+	})
+
 	it("should handle object arrays", () => {
 		const schema = z.object({
 			users: z.array(
