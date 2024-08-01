@@ -1,9 +1,0 @@
-src
-tsconfig*
-test
-biome.json
-lint-staged.config.js
-.idea
-.husky
-.github
-*.iml
