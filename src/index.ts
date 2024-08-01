@@ -26,6 +26,11 @@ class UnsupportedTypeException extends Error {
 	}
 }
 
+interface ProtobufField {
+	types: Array<string | null>
+	name: string
+}
+
 /**
  * Converts a Zod number to its corresponding Protobuf type name.
  * @param value The ZodNumber instance.
@@ -51,7 +56,6 @@ const fromDotToPascalCase = ({ key }: { key: string }): string => {
  * Traverses an array schema and generates Protobuf fields.
  * @param key The key for the array.
  * @param value The ZodArray instance.
- * @param fieldNumber The current field number.
  * @param messages The map of message definitions.
  * @param enums The map of enum definitions.
  * @param typePrefix The prefix for type names.
@@ -60,39 +64,37 @@ const fromDotToPascalCase = ({ key }: { key: string }): string => {
 const traverseArray = ({
 	key,
 	value,
-	fieldNumber,
 	messages,
 	enums,
 	typePrefix,
 }: {
 	key: string
 	value: ZodArray<ZodTypeAny>
-	fieldNumber: { current: number }
 	messages: Map<string, string[]>
 	enums: Map<string, string[]>
 	typePrefix: string | null
-}): string[] => {
+}): ProtobufField[] => {
 	const singularKey = inflection.singularize(key)
 	const elementFields = traverseKey({
 		key: singularKey,
 		value: value._def.type,
-		fieldNumber,
 		messages,
 		enums,
 		isOptional: false, // Ensure elements inside arrays are not optional
 		isInArray: true,
 		typePrefix,
 	})
-	return elementFields.map(
-		(field) => `repeated ${field.replace(singularKey, key)}`,
-	)
+	return elementFields.map((field) => ({
+		...field,
+		types: ["repeated", ...field.types],
+		name: field.name.replace(singularKey, key),
+	}))
 }
 
 /**
  * Traverses a key and its schema value to generate Protobuf fields.
  * @param key The key.
  * @param value The schema value.
- * @param fieldNumber The current field number.
  * @param messages The map of message definitions.
  * @param enums The map of enum definitions.
  * @param isOptional Whether the field is optional.
@@ -103,7 +105,6 @@ const traverseArray = ({
 const traverseKey = ({
 	key,
 	value,
-	fieldNumber,
 	messages,
 	enums,
 	isOptional,
@@ -112,18 +113,16 @@ const traverseKey = ({
 }: {
 	key: string
 	value: unknown
-	fieldNumber: { current: number }
 	messages: Map<string, string[]>
 	enums: Map<string, string[]>
 	isOptional: boolean
 	isInArray: boolean
 	typePrefix: string | null
-}): string[] => {
+}): ProtobufField[] => {
 	if (value instanceof ZodOptional || value instanceof ZodNullable) {
 		return traverseKey({
 			key,
 			value: value.unwrap(),
-			fieldNumber,
 			messages,
 			enums,
 			isOptional: true,
@@ -136,14 +135,13 @@ const traverseKey = ({
 		return traverseArray({
 			key,
 			value,
-			fieldNumber,
 			messages,
 			enums,
 			typePrefix,
 		})
 	}
 
-	const optionalKeyword = isOptional && !isInArray ? "optional " : ""
+	const optional = isOptional && !isInArray ? "optional" : null
 
 	if (value instanceof ZodObject) {
 		let messageName = fromDotToPascalCase({ key })
@@ -158,21 +156,39 @@ const traverseKey = ({
 		})
 		messages.set(messageName, nestedMessageFields)
 		return [
-			`${optionalKeyword}${messageName} ${key} = ${fieldNumber.current++};`,
+			{
+				types: [optional, messageName],
+				name: key,
+			},
 		]
 	}
 
 	if (value instanceof ZodString) {
-		return [`${optionalKeyword}string ${key} = ${fieldNumber.current++};`]
+		return [
+			{
+				types: [optional, "string"],
+				name: key,
+			},
+		]
 	}
 
 	if (value instanceof ZodNumber) {
 		const typeName = getNumberTypeName({ value })
-		return [`${optionalKeyword}${typeName} ${key} = ${fieldNumber.current++};`]
+		return [
+			{
+				types: [optional, typeName],
+				name: key,
+			},
+		]
 	}
 
 	if (value instanceof ZodBoolean) {
-		return [`${optionalKeyword}bool ${key} = ${fieldNumber.current++};`]
+		return [
+			{
+				types: [optional, "bool"],
+				name: key,
+			},
+		]
 	}
 
 	if (value instanceof ZodEnum) {
@@ -184,11 +200,21 @@ const traverseKey = ({
 			enumName = `${typePrefix}${enumName}`
 		}
 		enums.set(enumName, [`enum ${enumName} {\n${enumFields}\n}`])
-		return [`${optionalKeyword}${enumName} ${key} = ${fieldNumber.current++};`]
+		return [
+			{
+				types: [optional, enumName],
+				name: key,
+			},
+		]
 	}
 
 	if (value instanceof ZodDate) {
-		return [`${optionalKeyword}string ${key} = ${fieldNumber.current++};`]
+		return [
+			{
+				types: [optional, "string"],
+				name: key,
+			},
+		]
 	}
 
 	if (value instanceof ZodType) {
@@ -221,20 +247,22 @@ const traverseSchema = ({
 		throw new UnsupportedTypeException(schema.constructor.name)
 	}
 
-	const fieldNumber = { current: 1 }
-	const fields = Object.entries(schema.shape).flatMap(([key, value]) =>
-		traverseKey({
+	const fields = Object.entries(schema.shape).flatMap(([key, value]) => {
+		return traverseKey({
 			key,
 			value,
-			fieldNumber,
 			messages,
 			enums,
 			isOptional: false,
 			isInArray: false,
 			typePrefix,
-		}),
+		})
+	})
+
+	return fields.map(
+		(field, index) =>
+			`${field.types.filter(Boolean).join(" ")} ${field.name} = ${index + 1};`,
 	)
-	return fields
 }
 
 /**
