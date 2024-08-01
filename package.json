@@ -1,6 +1,6 @@
 {
   "name": "zod-to-protobuf",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
   "types": "dist/types/index.d.ts",
@@ -51,6 +51,8 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^1.8.3",
+    "@commitlint/cli": "19.3.0",
+    "@commitlint/config-conventional": "19.2.2",
     "@types/node": "^22.0.0",
     "husky": "^9.1.4",
     "lint-staged": "^15.2.7",
