@@ -316,7 +316,7 @@ message MyMessage {
     Address address = 3;
 }`
 
-    const proto = zodToProtobuf(schema, {packageName: "mypackage", messageName: "MyMessage"})
+    const proto = zodToProtobuf(schema, {packageName: "mypackage", rootMessageName: "MyMessage"})
     expect(proto).toBe(expectedProto.trim())
   })
 
@@ -353,5 +353,53 @@ message Message {
 
     const proto = zodToProtobuf(schema)
     expect(proto).toBe(expectedProto.trim())
+  })
+
+  it('should generate Protobuf schema with type name prefix, including nested objects', () => {
+    const schema = z.object({
+      id: z.number().int(),
+      name: z.string(),
+      isActive: z.boolean(),
+      createdAt: z.date(),
+      roles: z.array(z.enum(['ADMIN', 'USER', 'GUEST'])),
+      address: z.object({
+        street: z.string(),
+        city: z.string(),
+        postalCode: z.string()
+      })
+    })
+
+    const protoDefinition = zodToProtobuf(schema, {
+      packageName: 'example',
+      rootMessageName: 'ExampleMessage',
+      typePrefix: 'Prefix_'
+    })
+
+    const expectedProto = `
+syntax = "proto3";
+package example;
+
+enum Prefix_Role {
+    ADMIN = 0;
+    USER = 1;
+    GUEST = 2;
+}
+
+message Prefix_Address {
+    string street = 1;
+    string city = 2;
+    string postalCode = 3;
+}
+
+message Prefix_ExampleMessage {
+    int32 id = 1;
+    string name = 2;
+    bool isActive = 3;
+    string createdAt = 4;
+    repeated Prefix_Role roles = 5;
+    Prefix_Address address = 6;
+}`.trim()
+
+    expect(protoDefinition).toBe(expectedProto)
   })
 })

@@ -15,7 +15,8 @@ import {
 
 interface ZodToProtobufOptions {
 	packageName?: string
-	messageName?: string
+	rootMessageName?: string
+	typePrefix?: string
 }
 
 class UnsupportedTypeException extends Error {
@@ -53,6 +54,7 @@ const fromDotToPascalCase = ({ key }: { key: string }): string => {
  * @param fieldNumber The current field number.
  * @param messages The map of message definitions.
  * @param enums The map of enum definitions.
+ * @param typePrefix The prefix for type names.
  * @returns An array of Protobuf field definitions.
  */
 const traverseArray = ({
@@ -61,12 +63,14 @@ const traverseArray = ({
 	fieldNumber,
 	messages,
 	enums,
+	typePrefix,
 }: {
 	key: string
 	value: ZodArray<ZodTypeAny>
 	fieldNumber: { current: number }
 	messages: Map<string, string[]>
 	enums: Map<string, string[]>
+	typePrefix: string | null
 }): string[] => {
 	const singularKey = inflection.singularize(key)
 	const elementFields = traverseKey({
@@ -77,6 +81,7 @@ const traverseArray = ({
 		enums,
 		isOptional: false, // Ensure elements inside arrays are not optional
 		isInArray: true,
+		typePrefix,
 	})
 	return elementFields.map(
 		(field) => `repeated ${field.replace(singularKey, key)}`,
@@ -92,6 +97,7 @@ const traverseArray = ({
  * @param enums The map of enum definitions.
  * @param isOptional Whether the field is optional.
  * @param isInArray Whether the field is inside an array.
+ * @param typePrefix The prefix for type names.
  * @returns An array of Protobuf field definitions.
  */
 const traverseKey = ({
@@ -102,6 +108,7 @@ const traverseKey = ({
 	enums,
 	isOptional,
 	isInArray,
+	typePrefix,
 }: {
 	key: string
 	value: unknown
@@ -110,6 +117,7 @@ const traverseKey = ({
 	enums: Map<string, string[]>
 	isOptional: boolean
 	isInArray: boolean
+	typePrefix: string | null
 }): string[] => {
 	if (value instanceof ZodOptional || value instanceof ZodNullable) {
 		return traverseKey({
@@ -120,21 +128,33 @@ const traverseKey = ({
 			enums,
 			isOptional: true,
 			isInArray,
+			typePrefix,
 		})
 	}
 
 	if (value instanceof ZodArray) {
-		return traverseArray({ key, value, fieldNumber, messages, enums })
+		return traverseArray({
+			key,
+			value,
+			fieldNumber,
+			messages,
+			enums,
+			typePrefix,
+		})
 	}
 
 	const optionalKeyword = isOptional && !isInArray ? "optional " : ""
 
 	if (value instanceof ZodObject) {
-		const messageName = fromDotToPascalCase({ key })
+		let messageName = fromDotToPascalCase({ key })
+		if (typePrefix) {
+			messageName = `${typePrefix}${messageName}`
+		}
 		const nestedMessageFields = traverseSchema({
 			schema: value,
 			messages,
 			enums,
+			typePrefix,
 		})
 		messages.set(messageName, nestedMessageFields)
 		return [
@@ -159,7 +179,10 @@ const traverseKey = ({
 		const enumFields = value.options
 			.map((option: string, index: number) => `    ${option} = ${index};`)
 			.join("\n")
-		const enumName = fromDotToPascalCase({ key })
+		let enumName = fromDotToPascalCase({ key })
+		if (typePrefix) {
+			enumName = `${typePrefix}${enumName}`
+		}
 		enums.set(enumName, [`enum ${enumName} {\n${enumFields}\n}`])
 		return [`${optionalKeyword}${enumName} ${key} = ${fieldNumber.current++};`]
 	}
@@ -180,16 +203,19 @@ const traverseKey = ({
  * @param schema The Zod schema.
  * @param messages The map of message definitions.
  * @param enums The map of enum definitions.
+ * @param typePrefix The prefix for type names.
  * @returns An array of Protobuf field definitions.
  */
 const traverseSchema = ({
 	schema,
 	messages,
 	enums,
+	typePrefix,
 }: {
 	schema: ZodTypeAny
 	messages: Map<string, string[]>
 	enums: Map<string, string[]>
+	typePrefix: string | null
 }): string[] => {
 	if (!(schema instanceof ZodObject)) {
 		throw new UnsupportedTypeException(schema.constructor.name)
@@ -205,6 +231,7 @@ const traverseSchema = ({
 			enums,
 			isOptional: false,
 			isInArray: false,
+			typePrefix,
 		}),
 	)
 	return fields
@@ -220,13 +247,17 @@ const zodToProtobuf = (
 	schema: ZodTypeAny,
 	options: ZodToProtobufOptions = {},
 ): string => {
-	const { packageName = "default", messageName = "Message" } = options
+	const {
+		packageName = "default",
+		rootMessageName = "Message",
+		typePrefix = "",
+	} = options
 
 	const messages = new Map<string, string[]>()
 	const enums = new Map<string, string[]>()
 
-	const fields = traverseSchema({ schema, messages, enums })
-	messages.set(messageName, fields)
+	const fields = traverseSchema({ schema, messages, enums, typePrefix })
+	messages.set(`${typePrefix}${rootMessageName}`, fields)
 
 	const enumsString = Array.from(enums.values()).map((enumDef) =>
 		enumDef.join("\n"),
