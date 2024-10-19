@@ -1,4 +1,4 @@
-import * as inflection from "inflection"
+import * as inflection from 'inflection'
 import {
 	ZodArray,
 	ZodBigInt,
@@ -14,8 +14,8 @@ import {
 	ZodString,
 	ZodTuple,
 	ZodType,
-	type ZodTypeAny,
-} from "zod"
+	type ZodTypeAny
+} from 'zod'
 
 interface ZodToProtobufOptions {
 	packageName?: string
@@ -26,7 +26,7 @@ interface ZodToProtobufOptions {
 class UnsupportedTypeException extends Error {
 	constructor(type: string) {
 		super(`Unsupported type: ${type}`)
-		this.name = "UnsupportedTypeException"
+		this.name = 'UnsupportedTypeException'
 	}
 }
 
@@ -41,7 +41,7 @@ interface ProtobufField {
  * @returns The Protobuf type name.
  */
 const getNumberTypeName = ({ value }: { value: ZodNumber }): string => {
-	return value.isInt ? "int32" : "double"
+	return value.isInt ? 'int32' : 'double'
 }
 
 /**
@@ -51,9 +51,9 @@ const getNumberTypeName = ({ value }: { value: ZodNumber }): string => {
  */
 const toPascalCase = ({ value }: { value: string }): string => {
 	return value
-		.split(".")
+		.split('.')
 		.map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-		.join("")
+		.join('')
 }
 
 /**
@@ -70,7 +70,7 @@ const traverseArray = ({
 	value,
 	messages,
 	enums,
-	typePrefix,
+	typePrefix
 }: {
 	key: string
 	value: ZodArray<ZodTypeAny> | ZodSet<ZodTypeAny>
@@ -79,7 +79,7 @@ const traverseArray = ({
 	typePrefix: string | null
 }): ProtobufField[] => {
 	const nestedValue =
-		"type" in value._def ? value._def.type : value._def.valueType
+		'type' in value._def ? value._def.type : value._def.valueType
 
 	const singularKey = inflection.singularize(key)
 	const elementFields = traverseKey({
@@ -89,12 +89,12 @@ const traverseArray = ({
 		enums,
 		isOptional: false, // Ensure elements inside arrays are not optional
 		isInArray: true,
-		typePrefix,
+		typePrefix
 	})
 	return elementFields.map((field) => ({
 		...field,
-		types: ["repeated", ...field.types],
-		name: field.name.replace(singularKey, key),
+		types: ['repeated', ...field.types],
+		name: field.name.replace(singularKey, key)
 	}))
 }
 
@@ -112,7 +112,7 @@ const traverseMap = ({
 	value,
 	messages,
 	enums,
-	typePrefix,
+	typePrefix
 }: {
 	key: string
 	value: ZodMap<ZodTypeAny, ZodTypeAny>
@@ -127,7 +127,7 @@ const traverseMap = ({
 		enums,
 		isOptional: false,
 		isInArray: true,
-		typePrefix,
+		typePrefix
 	})
 	const valueType = traverseKey({
 		key: `${key}Value`,
@@ -136,7 +136,7 @@ const traverseMap = ({
 		enums,
 		isOptional: false,
 		isInArray: true,
-		typePrefix,
+		typePrefix
 	})
 
 	if (!keyType[0] || keyType.length !== 1) {
@@ -151,8 +151,8 @@ const traverseMap = ({
 	return [
 		{
 			types: [mapType],
-			name: key,
-		},
+			name: key
+		}
 	]
 }
 
@@ -174,7 +174,7 @@ const traverseKey = ({
 	enums,
 	isOptional,
 	isInArray,
-	typePrefix,
+	typePrefix
 }: {
 	key: string
 	value: unknown
@@ -192,7 +192,7 @@ const traverseKey = ({
 			enums,
 			isOptional: true,
 			isInArray,
-			typePrefix,
+			typePrefix
 		})
 	}
 
@@ -202,7 +202,7 @@ const traverseKey = ({
 			value,
 			messages,
 			enums,
-			typePrefix,
+			typePrefix
 		})
 	}
 
@@ -212,11 +212,11 @@ const traverseKey = ({
 			value,
 			messages,
 			enums,
-			typePrefix,
+			typePrefix
 		})
 	}
 
-	const optional = isOptional && !isInArray ? "optional" : null
+	const optional = isOptional && !isInArray ? 'optional' : null
 
 	if (value instanceof ZodObject) {
 		let messageName = toPascalCase({ value: key })
@@ -227,23 +227,23 @@ const traverseKey = ({
 			schema: value,
 			messages,
 			enums,
-			typePrefix,
+			typePrefix
 		})
 		messages.set(messageName, nestedMessageFields)
 		return [
 			{
 				types: [optional, messageName],
-				name: key,
-			},
+				name: key
+			}
 		]
 	}
 
 	if (value instanceof ZodString) {
 		return [
 			{
-				types: [optional, "string"],
-				name: key,
-			},
+				types: [optional, 'string'],
+				name: key
+			}
 		]
 	}
 
@@ -252,24 +252,24 @@ const traverseKey = ({
 		return [
 			{
 				types: [optional, typeName],
-				name: key,
-			},
+				name: key
+			}
 		]
 	}
 
 	if (value instanceof ZodBoolean) {
 		return [
 			{
-				types: [optional, "bool"],
-				name: key,
-			},
+				types: [optional, 'bool'],
+				name: key
+			}
 		]
 	}
 
 	if (value instanceof ZodEnum) {
 		const enumFields = value.options
 			.map((option: string, index: number) => `    ${option} = ${index};`)
-			.join("\n")
+			.join('\n')
 		let enumName = toPascalCase({ value: key })
 		if (typePrefix) {
 			enumName = `${typePrefix}${enumName}`
@@ -278,26 +278,26 @@ const traverseKey = ({
 		return [
 			{
 				types: [optional, enumName],
-				name: key,
-			},
+				name: key
+			}
 		]
 	}
 
 	if (value instanceof ZodDate) {
 		return [
 			{
-				types: [optional, "string"],
-				name: key,
-			},
+				types: [optional, 'string'],
+				name: key
+			}
 		]
 	}
 
 	if (value instanceof ZodBigInt) {
 		return [
 			{
-				types: [optional, "int64"],
-				name: key,
-			},
+				types: [optional, 'int64'],
+				name: key
+			}
 		]
 	}
 
@@ -311,9 +311,9 @@ const traverseKey = ({
 					enums,
 					isOptional: false,
 					isInArray,
-					typePrefix,
+					typePrefix
 				})
-			},
+			}
 		)
 
 		const tupleMessageName = toPascalCase({ value: key })
@@ -321,14 +321,14 @@ const traverseKey = ({
 			tupleMessageName,
 			tupleFields.map(
 				(field, index) =>
-					`  ${field.types.join(" ")} ${field.name} = ${index + 1};`,
-			),
+					`  ${field.types.join(' ')} ${field.name} = ${index + 1};`
+			)
 		)
 		return [
 			{
 				types: [optional, tupleMessageName],
-				name: key,
-			},
+				name: key
+			}
 		]
 	}
 
@@ -340,7 +340,7 @@ const traverseKey = ({
 }
 
 const protobufFieldToType = ({ field }: { field: ProtobufField }) => {
-	return field.types.filter(Boolean).join(" ")
+	return field.types.filter(Boolean).join(' ')
 }
 
 /**
@@ -355,7 +355,7 @@ const traverseSchema = ({
 	schema,
 	messages,
 	enums,
-	typePrefix,
+	typePrefix
 }: {
 	schema: ZodTypeAny
 	messages: Map<string, string[]>
@@ -374,13 +374,13 @@ const traverseSchema = ({
 			enums,
 			isOptional: false,
 			isInArray: false,
-			typePrefix,
+			typePrefix
 		})
 	})
 
 	return fields.map(
 		(field, index) =>
-			`${protobufFieldToType({ field })} ${field.name} = ${index + 1};`,
+			`${protobufFieldToType({ field })} ${field.name} = ${index + 1};`
 	)
 }
 
@@ -392,12 +392,12 @@ const traverseSchema = ({
  */
 const zodToProtobuf = (
 	schema: ZodTypeAny,
-	options: ZodToProtobufOptions = {},
+	options: ZodToProtobufOptions = {}
 ): string => {
 	const {
-		packageName = "default",
-		rootMessageName = "Message",
-		typePrefix = "",
+		packageName = 'default',
+		rootMessageName = 'Message',
+		typePrefix = ''
 	} = options
 
 	const messages = new Map<string, string[]>()
@@ -407,18 +407,18 @@ const zodToProtobuf = (
 	messages.set(`${typePrefix}${rootMessageName}`, fields)
 
 	const enumsString = Array.from(enums.values()).map((enumDef) =>
-		enumDef.join("\n"),
+		enumDef.join('\n')
 	)
 
 	const messagesString = Array.from(messages.entries()).map(
 		([name, fields]) =>
-			`message ${name} {\n${fields.map((field) => `    ${field}`).join("\n")}\n}`,
+			`message ${name} {\n${fields.map((field) => `    ${field}`).join('\n')}\n}`
 	)
 
 	const content = [enumsString, messagesString]
 		.filter((strings) => !!strings.length)
-		.map((strings) => strings.join("\n\n"))
-		.join("\n\n")
+		.map((strings) => strings.join('\n\n'))
+		.join('\n\n')
 
 	const protoDefinition = `
 syntax = "proto3";

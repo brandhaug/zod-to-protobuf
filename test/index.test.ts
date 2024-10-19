@@ -1,12 +1,12 @@
-import { describe, expect, it } from "vitest"
-import { z } from "zod"
-import { zodToProtobuf } from "../src"
+import { describe, expect, it } from 'vitest'
+import { z } from 'zod'
+import { zodToProtobuf } from '../src'
 
-describe("zodToProtobuf", () => {
-	it("should convert a simple Zod object to protobuf", () => {
+describe('zodToProtobuf', () => {
+	it('should convert a simple Zod object to protobuf', () => {
 		const schema = z.object({
 			name: z.string(),
-			age: z.number().int(),
+			age: z.number().int()
 		})
 
 		const expectedProto = `
@@ -22,9 +22,9 @@ message Message {
 		expect(proto).toBe(expectedProto.trim())
 	})
 
-	it("should handle booleans", () => {
+	it('should handle booleans', () => {
 		const schema = z.object({
-			isActive: z.boolean(),
+			isActive: z.boolean()
 		})
 
 		const expectedProto = `
@@ -39,9 +39,9 @@ message Message {
 		expect(proto).toBe(expectedProto.trim())
 	})
 
-	it("should handle arrays", () => {
+	it('should handle arrays', () => {
 		const schema = z.object({
-			tags: z.array(z.string()),
+			tags: z.array(z.string())
 		})
 
 		const expectedProto = `
@@ -56,12 +56,12 @@ message Message {
 		expect(proto).toBe(expectedProto.trim())
 	})
 
-	it("should handle nested Zod objects", () => {
+	it('should handle nested Zod objects', () => {
 		const schema = z.object({
 			user: z.object({
 				name: z.string(),
-				age: z.number().int(),
-			}),
+				age: z.number().int()
+			})
 		})
 
 		const expectedProto = `
@@ -81,9 +81,9 @@ message Message {
 		expect(proto).toBe(expectedProto.trim())
 	})
 
-	it("should handle nested arrays", () => {
+	it('should handle nested arrays', () => {
 		const schema = z.object({
-			matrix: z.array(z.array(z.number().int())),
+			matrix: z.array(z.array(z.number().int()))
 		})
 
 		const expectedProto = `
@@ -98,9 +98,9 @@ message Message {
 		expect(proto).toBe(expectedProto.trim())
 	})
 
-	it("should handle enums", () => {
+	it('should handle enums', () => {
 		const schema = z.object({
-			status: z.enum(["ACTIVE", "INACTIVE"]),
+			status: z.enum(['ACTIVE', 'INACTIVE'])
 		})
 
 		const expectedProto = `
@@ -120,18 +120,18 @@ message Message {
 		expect(proto).toBe(expectedProto.trim())
 	})
 
-	it("should handle optional fields", () => {
+	it('should handle optional fields', () => {
 		const schema = z.object({
 			name: z.string().optional(),
 			age: z.number().int().nullable(),
 			city: z.string().nullish(),
 			address: z
 				.object({
-					street: z.string().optional(),
+					street: z.string().optional()
 				})
 				.nullable(),
 			tags: z.array(z.string()).nullable(),
-			stickers: z.array(z.string().nullish()),
+			stickers: z.array(z.string().nullish())
 		})
 
 		const expectedProto = `
@@ -155,10 +155,10 @@ message Message {
 		expect(proto).toBe(expectedProto.trim())
 	})
 
-	it("should handle nullable fields", () => {
+	it('should handle nullable fields', () => {
 		const schema = z.object({
 			name: z.string().nullable(),
-			age: z.number().int().nullish(),
+			age: z.number().int().nullish()
 		})
 
 		const expectedProto = `
@@ -174,10 +174,10 @@ message Message {
 		expect(proto).toBe(expectedProto.trim())
 	})
 
-	it("should handle dates", () => {
+	it('should handle dates', () => {
 		const schema = z.object({
 			birthdate: z.date(),
-			appointment: z.date(),
+			appointment: z.date()
 		})
 
 		const expectedProto = `
@@ -193,9 +193,9 @@ message Message {
 		expect(proto).toBe(expectedProto.trim())
 	})
 
-	it("should handle double types", () => {
+	it('should handle double types', () => {
 		const schema = z.object({
-			measurement: z.number(),
+			measurement: z.number()
 		})
 
 		const expectedProto = `
@@ -210,9 +210,9 @@ message Message {
 		expect(proto).toBe(expectedProto.trim())
 	})
 
-	it("should handle int types", () => {
+	it('should handle int types', () => {
 		const schema = z.object({
-			counter: z.number().int(),
+			counter: z.number().int()
 		})
 
 		const expectedProto = `
@@ -227,18 +227,18 @@ message Message {
 		expect(proto).toBe(expectedProto.trim())
 	})
 
-	it("should handle nested objects with arrays and enums", () => {
+	it('should handle nested objects with arrays and enums', () => {
 		const schema = z.object({
 			user: z.object({
 				name: z.string(),
 				tags: z.array(
 					z.object({
 						label: z.string(),
-						value: z.number(),
-					}),
+						value: z.number()
+					})
 				),
-				status: z.enum(["ACTIVE", "INACTIVE"]),
-			}),
+				status: z.enum(['ACTIVE', 'INACTIVE'])
+			})
 		})
 
 		const expectedProto = `
@@ -269,33 +269,33 @@ message Message {
 		expect(proto).toBe(expectedProto.trim())
 	})
 
-	it("should throw exception on unsupported ZodAny type", () => {
+	it('should throw exception on unsupported ZodAny type', () => {
 		const schema = z.object({
-			counter: z.any(),
+			counter: z.any()
 		})
 
-		expect(() => zodToProtobuf(schema)).toThrowError("Unsupported type: ZodAny")
+		expect(() => zodToProtobuf(schema)).toThrowError('Unsupported type: ZodAny')
 	})
 
-	it("should throw exception on unsupported Object type", () => {
+	it('should throw exception on unsupported Object type', () => {
 		// @ts-expect-error
 		expect(() => zodToProtobuf({ test: 1 })).toThrowError(
-			"Unsupported type: Object",
+			'Unsupported type: Object'
 		)
 	})
 
-	it("should throw exception on unsupported Number type", () => {
+	it('should throw exception on unsupported Number type', () => {
 		// @ts-expect-error
-		expect(() => zodToProtobuf(1)).toThrowError("Unsupported type: Number")
+		expect(() => zodToProtobuf(1)).toThrowError('Unsupported type: Number')
 	})
 
-	it("should handle custom message name and package name", () => {
+	it('should handle custom message name and package name', () => {
 		const schema = z.object({
 			name: z.string(),
 			age: z.number().int(),
 			address: z.object({
-				street: z.string(),
-			}),
+				street: z.string()
+			})
 		})
 
 		const expectedProto = `
@@ -313,23 +313,23 @@ message MyMessage {
 }`
 
 		const proto = zodToProtobuf(schema, {
-			packageName: "mypackage",
-			rootMessageName: "MyMessage",
+			packageName: 'mypackage',
+			rootMessageName: 'MyMessage'
 		})
 		expect(proto).toBe(expectedProto.trim())
 	})
 
-	it("should handle complex nested objects and arrays", () => {
+	it('should handle complex nested objects and arrays', () => {
 		const schema = z.object({
 			user: z.object({
 				name: z.string(),
 				tags: z.array(
 					z.object({
 						label: z.string(),
-						value: z.number().int(),
-					}),
-				),
-			}),
+						value: z.number().int()
+					})
+				)
+			})
 		})
 
 		const expectedProto = `
@@ -354,24 +354,24 @@ message Message {
 		expect(proto).toBe(expectedProto.trim())
 	})
 
-	it("should generate Protobuf schema with type name prefix, including nested objects", () => {
+	it('should generate Protobuf schema with type name prefix, including nested objects', () => {
 		const schema = z.object({
 			id: z.number().int(),
 			name: z.string(),
 			isActive: z.boolean(),
 			createdAt: z.date(),
-			roles: z.array(z.enum(["ADMIN", "USER", "GUEST"])),
+			roles: z.array(z.enum(['ADMIN', 'USER', 'GUEST'])),
 			address: z.object({
 				street: z.string(),
 				city: z.string(),
-				postalCode: z.string(),
-			}),
+				postalCode: z.string()
+			})
 		})
 
 		const protoDefinition = zodToProtobuf(schema, {
-			packageName: "example",
-			rootMessageName: "ExampleMessage",
-			typePrefix: "Prefix_",
+			packageName: 'example',
+			rootMessageName: 'ExampleMessage',
+			typePrefix: 'Prefix_'
 		})
 
 		const expectedProto = `
@@ -402,9 +402,9 @@ message Prefix_ExampleMessage {
 		expect(protoDefinition).toBe(expectedProto)
 	})
 
-	it("should handle sets", () => {
+	it('should handle sets', () => {
 		const schema = z.object({
-			uniqueTags: z.set(z.string()),
+			uniqueTags: z.set(z.string())
 		})
 
 		const expectedProto = `
@@ -419,9 +419,9 @@ message Message {
 		expect(proto).toBe(expectedProto.trim())
 	})
 
-	it("should handle tuples", () => {
+	it('should handle tuples', () => {
 		const schema = z.object({
-			coordinates: z.tuple([z.number(), z.number()]),
+			coordinates: z.tuple([z.number(), z.number()])
 		})
 
 		const expectedProto = `
@@ -441,13 +441,13 @@ message Message {
 		expect(proto).toBe(expectedProto.trim())
 	})
 
-	it("should handle tuples with 3 elements", () => {
+	it('should handle tuples with 3 elements', () => {
 		const schema = z.object({
 			coordinates: z.tuple([
 				z.number(),
 				z.string(),
-				z.object({ a: z.string() }),
-			]),
+				z.object({ a: z.string() })
+			])
 		})
 
 		const expectedProto = `
@@ -472,9 +472,9 @@ message Message {
 		expect(proto).toBe(expectedProto.trim())
 	})
 
-	it("should handle map with string key and value", () => {
+	it('should handle map with string key and value', () => {
 		const schema = z.object({
-			metadata: z.map(z.string(), z.string()),
+			metadata: z.map(z.string(), z.string())
 		})
 
 		const expectedProto = `
@@ -489,9 +489,9 @@ message Message {
 		expect(proto).toBe(expectedProto.trim())
 	})
 
-	it("should handle map with number key", () => {
+	it('should handle map with number key', () => {
 		const schema = z.object({
-			metadata: z.map(z.number().int(), z.string()),
+			metadata: z.map(z.number().int(), z.string())
 		})
 
 		const expectedProto = `
@@ -506,9 +506,9 @@ message Message {
 		expect(proto).toBe(expectedProto.trim())
 	})
 
-	it("should handle big integers", () => {
+	it('should handle big integers', () => {
 		const schema = z.object({
-			largeNumber: z.bigint(),
+			largeNumber: z.bigint()
 		})
 
 		const expectedProto = `
@@ -523,15 +523,15 @@ message Message {
 		expect(proto).toBe(expectedProto.trim())
 	})
 
-	it("should handle map with object value", () => {
+	it('should handle map with object value', () => {
 		const schema = z.object({
 			metadata: z.map(
 				z.string(),
 				z.object({
 					value: z.string(),
-					timestamp: z.date(),
-				}),
-			),
+					timestamp: z.date()
+				})
+			)
 		})
 
 		const expectedProto = `
@@ -551,16 +551,16 @@ message Message {
 		expect(proto).toBe(expectedProto.trim())
 	})
 
-	it("should handle 2D set with object", () => {
+	it('should handle 2D set with object', () => {
 		const schema = z.object({
 			matrix: z.set(
 				z.set(
 					z.object({
 						value: z.string(),
-						count: z.number().int(),
-					}),
-				),
-			),
+						count: z.number().int()
+					})
+				)
+			)
 		})
 
 		const expectedProto = `
@@ -580,15 +580,15 @@ message Message {
 		expect(proto).toBe(expectedProto.trim())
 	})
 
-	it("should handle object arrays", () => {
+	it('should handle object arrays', () => {
 		const schema = z.object({
 			users: z.array(
 				z.object({
 					id: z.number().int(),
 					name: z.string(),
-					isActive: z.boolean(),
-				}),
-			),
+					isActive: z.boolean()
+				})
+			)
 		})
 
 		const expectedProto = `

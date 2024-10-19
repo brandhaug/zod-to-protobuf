@@ -5,7 +5,9 @@
 	},
 	"javascript": {
 		"formatter": {
-			"semicolons": "asNeeded"
+			"semicolons": "asNeeded",
+			"quoteStyle": "single",
+			"trailingCommas": "none"
 		}
 	},
 	"organizeImports": {
