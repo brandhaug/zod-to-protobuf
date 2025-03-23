@@ -1,16 +1,15 @@
 {
+	"include": ["**/*.ts"],
 	"compilerOptions": {
-		"target": "ES6",
-		"module": "commonjs",
-		"moduleResolution": "node",
-		"outDir": "./dist",
-		"rootDir": "./src",
-		"strict": true,
-		"noUncheckedIndexedAccess": true,
+		"target": "ES2020",
+		"module": "ES2020",
+		"moduleResolution": "bundler",
+		"lib": ["ES2020"],
 		"esModuleInterop": true,
-		"skipLibCheck": true,
-		"forceConsistentCasingInFileNames": true
-	},
-	"include": ["src/**/*.ts"],
-	"exclude": ["test/*.test.ts"]
+		"forceConsistentCasingInFileNames": true,
+		"strict": true,
+		"noEmit": true,
+		"noUncheckedIndexedAccess": true,
+		"skipLibCheck": true
+	}
 }

@@ -1,9 +1,5 @@
 # zod-to-protobuf
-
-[![NPM Version](https://img.shields.io/npm/v/zod-to-protobuf.svg)](https://npmjs.org/package/zod-to-protobuf)
-[![NPM Downloads](https://img.shields.io/npm/dw/zod-to-protobuf.svg)](https://npmjs.org/package/zod-to-protobuf)
-
-## Summary 
+ 
 Convert Zod schemas to Protocol Buffers definitions.
 
 ## Installation
