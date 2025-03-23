@@ -5,6 +5,14 @@
 	"module": "dist/esm/index.js",
 	"types": "dist/types/index.d.ts",
 	"files": ["dist/"],
+	"targets": {
+		"main": {
+			"optimize": true
+		},
+		"module": {
+			"optimize": true
+		}
+	},
 	"exports": {
 		"import": {
 			"types": "./dist/types/index.d.ts",
