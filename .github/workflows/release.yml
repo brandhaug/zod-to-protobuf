@@ -1,10 +1,7 @@
-name: CI
+name: Release
 
 on:
   push:
-    branches:
-      - master
-  pull_request:
     branches:
       - master
 
@@ -14,13 +11,14 @@ permissions:
   pull-requests: write
 
 jobs:
-  ci:
+  release:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
+          # Need full history for semantic-release
           fetch-depth: 0
 
       - name: Setup Node.js
@@ -31,24 +29,16 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Typecheck
-        run: npm run typecheck
-
-      - name: Run tests
-        run: npm run test
-
-      - name: Lint project
-        run: npm run lint
-
-      - name: Build project
+      # Although build happens in PR checks, include it here
+      # to ensure the release artifacts are based on the latest master commit.
+      - name: Build project 
         run: npm run build
 
       - name: Configure npm token
         run: echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
 
       - name: Release
-        if: github.ref == 'refs/heads/master' && github.event_name == 'push'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: npx semantic-release
+        run: npx semantic-release 
