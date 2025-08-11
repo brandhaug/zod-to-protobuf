@@ -1,34 +1,22 @@
 {
   "name": "zod-to-protobuf",
   "version": "0.0.0",
-  "main": "dist/cjs/index.js",
-  "module": "dist/esm/index.js",
-  "types": "dist/types/index.d.ts",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "files": ["dist/"],
-  "targets": {
-    "main": {
-      "optimize": true
-    },
-    "module": {
-      "optimize": true
-    }
-  },
   "exports": {
-    "import": {
-      "types": "./dist/types/index.d.ts",
-      "default": "./dist/esm/index.js"
-    },
-    "require": {
-      "types": "./dist/types/index.d.ts",
-      "default": "./dist/cjs/index.js"
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
     }
   },
   "scripts": {
-    "build": "parcel build src/index.ts --no-source-maps",
+    "build": "tsc",
     "start": "node dist/index.js",
     "lint": "biome lint",
     "check-write": "biome check --write",
-    "typecheck": "tsc",
+    "typecheck": "tsc --noEmit",
     "prepare": "husky",
     "test": "vitest",
     "validate": "npm run lint && npm run typecheck && npm run test"
@@ -53,13 +41,10 @@
     "@biomejs/biome": "2.1.4",
     "@commitlint/cli": "19.8.1",
     "@commitlint/config-conventional": "19.8.1",
-    "@parcel/packager-ts": "^2.15.4",
-    "@parcel/transformer-typescript-types": "2.15.4",
     "@semantic-release/changelog": "6.0.3",
     "@types/node": "24.2.1",
     "husky": "9.1.7",
     "lint-staged": "16.1.5",
-    "parcel": "2.15.4",
     "semantic-release": "24.2.7",
     "tsc-files": "1.1.4",
     "typescript": "5.9.2",
