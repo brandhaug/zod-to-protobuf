@@ -1,6 +1,6 @@
 # zod-to-protobuf
  
-Convert Zod schemas to Protocol Buffers definitions.
+Convert Zod 4 schemas to Protocol Buffers definitions.
 
 ## Installation
 

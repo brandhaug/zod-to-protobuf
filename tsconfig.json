@@ -1,18 +1,18 @@
 {
-  "include": ["src/**/*.ts"],
-  "exclude": ["test/**/*", "dist/**/*"],
-  "compilerOptions": {
-    "target": "ES2020",
-    "module": "ES2020",
-    "moduleResolution": "node",
-    "lib": ["ES2020"],
-    "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
-    "strict": true,
-    "declaration": true,
-    "outDir": "dist",
-    "rootDir": "src",
-    "noUncheckedIndexedAccess": true,
-    "skipLibCheck": true
-  }
+	"include": ["src/**/*.ts"],
+	"exclude": ["test/**/*", "dist/**/*"],
+	"compilerOptions": {
+		"target": "ES2020",
+		"module": "ES2020",
+		"moduleResolution": "node",
+		"lib": ["ES2020"],
+		"esModuleInterop": true,
+		"forceConsistentCasingInFileNames": true,
+		"strict": true,
+		"declaration": true,
+		"outDir": "dist",
+		"rootDir": "src",
+		"noUncheckedIndexedAccess": true,
+		"skipLibCheck": true
+	}
 }

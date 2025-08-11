@@ -1,36 +1,58 @@
 {
-  "$schema": "./node_modules/@biomejs/biome/schema.json",
-  "formatter": {
-    "ignore": ["dist/"],
-    "lineWidth": 120,
-    "enabled": true,
-    "formatWithErrors": true,
-    "indentStyle": "space"
-  },
-  "javascript": {
-    "formatter": {
-      "quoteStyle": "single",
-      "jsxQuoteStyle": "single",
-      "trailingCommas": "none",
-      "semicolons": "asNeeded"
-    }
-  },
-  "organizeImports": {
-    "enabled": true,
-    "ignore": ["dist/"]
-  },
-  "linter": {
-    "enabled": true,
-    "ignore": ["dist/"],
-    "rules": {
-      "recommended": true,
-      "complexity": {
-        "noForEach": "off",
-        "useArrowFunction": "error"
-      },
-      "correctness": {
-        "noUnusedImports": "error"
-      }
-    }
-  }
+	"$schema": "./node_modules/@biomejs/biome/schema.json",
+	"vcs": {
+		"enabled": false,
+		"clientKind": "git",
+		"useIgnoreFile": false
+	},
+	"files": {
+		"ignoreUnknown": false,
+		"includes": ["**", "!**/dist"]
+	},
+	"formatter": {
+		"enabled": true,
+		"indentStyle": "tab"
+	},
+	"assist": { "actions": { "source": { "organizeImports": "on" } } },
+	"linter": {
+		"enabled": true,
+		"rules": {
+			"recommended": true,
+			"correctness": {
+				"useExhaustiveDependencies": "info"
+			},
+			"a11y": {
+				"recommended": false
+			},
+			"nursery": {
+				"useSortedClasses": {
+					"level": "warn",
+					"fix": "safe",
+					"options": {
+						"functions": ["clsx", "cva", "cn"]
+					}
+				}
+			},
+			"style": {
+				"noParameterAssign": "error",
+				"useAsConstAssertion": "error",
+				"useDefaultParameterLast": "error",
+				"useEnumInitializers": "error",
+				"useSelfClosingElements": "error",
+				"useSingleVarDeclarator": "error",
+				"noUnusedTemplateLiteral": "error",
+				"useNumberNamespace": "error",
+				"noInferrableTypes": "error",
+				"noUselessElse": "error"
+			}
+		}
+	},
+	"javascript": {
+		"formatter": {
+			"quoteStyle": "single",
+			"jsxQuoteStyle": "single",
+			"trailingCommas": "none",
+			"semicolons": "asNeeded"
+		}
+	}
 }

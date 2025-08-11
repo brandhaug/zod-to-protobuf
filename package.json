@@ -1,60 +1,68 @@
 {
-  "name": "zod-to-protobuf",
-  "version": "0.0.0",
-  "type": "module",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
-  "files": ["dist/"],
-  "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
-    }
-  },
-  "scripts": {
-    "build": "tsc",
-    "start": "node dist/index.js",
-    "lint": "biome lint",
-    "check-write": "biome check --write",
-    "typecheck": "tsc --noEmit",
-    "prepare": "husky",
-    "test": "vitest",
-    "validate": "npm run lint && npm run typecheck && npm run test"
-  },
-  "keywords": ["zod", "protobuf", "schema", "conversion", "typescript"],
-  "author": "Martin Brandhaug",
-  "license": "MIT",
-  "description": "A utility to convert Zod schemas to Protocol Buffers definitions.",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/brandhaug/zod-to-protobuf.git"
-  },
-  "bugs": {
-    "url": "https://github.com/brandhaug/zod-to-protobuf/issues"
-  },
-  "homepage": "https://github.com/brandhaug/zod-to-protobuf#readme",
-  "dependencies": {
-    "inflection": "3.0.2",
-    "zod": "4.0.17"
-  },
-  "devDependencies": {
-    "@biomejs/biome": "2.1.4",
-    "@commitlint/cli": "19.8.1",
-    "@commitlint/config-conventional": "19.8.1",
-    "@semantic-release/changelog": "6.0.3",
-    "@types/node": "24.2.1",
-    "husky": "9.1.7",
-    "lint-staged": "16.1.5",
-    "semantic-release": "24.2.7",
-    "tsc-files": "1.1.4",
-    "typescript": "5.9.2",
-    "vitest": "3.2.4"
-  },
-  "lint-staged": {
-    "*.{ts,json}": ["biome check --write"],
-    "*.ts": ["tsc-files"]
-  },
-  "engines": {
-    "node": ">=20"
-  }
+	"name": "zod-to-protobuf",
+	"version": "0.0.0",
+	"type": "module",
+	"main": "dist/index.js",
+	"types": "dist/index.d.ts",
+	"files": [
+		"dist/"
+	],
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"import": "./dist/index.js"
+		}
+	},
+	"scripts": {
+		"build": "tsc",
+		"start": "node dist/index.js",
+		"lint": "biome lint",
+		"check-write": "biome check --write",
+		"typecheck": "tsc --noEmit",
+		"prepare": "husky",
+		"test": "vitest",
+		"validate": "npm run lint && npm run typecheck && npm run test"
+	},
+	"keywords": [
+		"zod",
+		"protobuf",
+		"schema",
+		"conversion",
+		"typescript"
+	],
+	"author": "Martin Brandhaug",
+	"license": "MIT",
+	"description": "A utility to convert Zod schemas to Protocol Buffers definitions.",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/brandhaug/zod-to-protobuf.git"
+	},
+	"bugs": {
+		"url": "https://github.com/brandhaug/zod-to-protobuf/issues"
+	},
+	"homepage": "https://github.com/brandhaug/zod-to-protobuf#readme",
+	"dependencies": {
+		"inflection": "3.0.2",
+		"zod": "4.0.17"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "2.1.4",
+		"@commitlint/cli": "19.8.1",
+		"@commitlint/config-conventional": "19.8.1",
+		"@semantic-release/changelog": "6.0.3",
+		"@types/node": "24.2.1",
+		"husky": "9.1.7",
+		"lint-staged": "16.1.5",
+		"semantic-release": "24.2.7",
+		"typescript": "5.9.2",
+		"vitest": "3.2.4"
+	},
+	"lint-staged": {
+		"*.{ts,json}": [
+			"biome check --write"
+		]
+	},
+	"engines": {
+		"node": ">=20"
+	}
 }
