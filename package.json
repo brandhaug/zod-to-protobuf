@@ -47,23 +47,23 @@
   "homepage": "https://github.com/brandhaug/zod-to-protobuf#readme",
   "dependencies": {
     "inflection": "3.0.2",
-    "zod": "3.24.2"
+    "zod": "4.0.17"
   },
   "devDependencies": {
-    "@biomejs/biome": "1.9.4",
-    "@commitlint/cli": "19.8.0",
-    "@commitlint/config-conventional": "19.8.0",
-    "@parcel/packager-ts": "^2.14.1",
-    "@parcel/transformer-typescript-types": "2.14.1",
+    "@biomejs/biome": "2.1.4",
+    "@commitlint/cli": "19.8.1",
+    "@commitlint/config-conventional": "19.8.1",
+    "@parcel/packager-ts": "^2.15.4",
+    "@parcel/transformer-typescript-types": "2.15.4",
     "@semantic-release/changelog": "6.0.3",
-    "@types/node": "22.13.11",
+    "@types/node": "24.2.1",
     "husky": "9.1.7",
-    "lint-staged": "15.5.0",
-    "parcel": "2.14.1",
-    "semantic-release": "24.2.3",
+    "lint-staged": "16.1.5",
+    "parcel": "2.15.4",
+    "semantic-release": "24.2.7",
     "tsc-files": "1.1.4",
-    "typescript": "5.8.2",
-    "vitest": "3.0.9"
+    "typescript": "5.9.2",
+    "vitest": "3.2.4"
   },
   "lint-staged": {
     "*.{ts,json}": ["biome check --write"],
