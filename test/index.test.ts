@@ -608,4 +608,47 @@ message Message {
 		const proto = zodToProtobuf(schema)
 		expect(proto).toBe(expectedProto)
 	})
+
+	it('should handle multiple enums with same key using meta id', () => {
+		const colorScheme = z.enum(['red', 'blue']).meta({ id: 'color' })
+		const sizeScheme = z.enum(['small', 'big']).meta({ id: 'size' })
+		const schema = z.object({
+			color: z.object({
+				value: colorScheme
+			}),
+			size: z.object({
+				value: sizeScheme
+			})
+		})
+
+		const expectedProto = `
+syntax = "proto3";
+package default;
+
+enum Color {
+    red = 0;
+    blue = 1;
+}
+
+enum Size {
+    small = 0;
+    big = 1;
+}
+
+message Color {
+    Color value = 1;
+}
+
+message Size {
+    Size value = 1;
+}
+
+message Message {
+    Color color = 1;
+    Size size = 2;
+}`.trim()
+
+		const proto = zodToProtobuf(schema)
+		expect(proto).toBe(expectedProto)
+	})
 })
