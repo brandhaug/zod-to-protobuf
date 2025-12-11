@@ -278,7 +278,7 @@ const traverseKey = ({
 					`    ${String(option)} = ${index};`
 			)
 			.join('\n')
-		let enumName = toPascalCase({ value: key })
+		let enumName = toPascalCase({ value: value.meta()?.id ?? key })
 		if (typePrefix) {
 			enumName = `${typePrefix}${enumName}`
 		}
