@@ -3,13 +3,16 @@ import {
 	ZodArray,
 	ZodBigInt,
 	ZodBoolean,
+	ZodCatch,
 	ZodDate,
+	ZodDefault,
 	ZodEnum,
 	ZodMap,
 	ZodNullable,
 	ZodNumber,
 	ZodObject,
 	ZodOptional,
+	ZodPipe,
 	ZodSet,
 	ZodString,
 	ZodTuple,
@@ -196,6 +199,30 @@ const traverseKey = ({
 			messages,
 			enums,
 			isOptional: true,
+			isInArray,
+			typePrefix
+		})
+	}
+
+	if (value instanceof ZodPipe) {
+		return traverseKey({
+			key,
+			value: value._def.in,
+			messages,
+			enums,
+			isOptional,
+			isInArray,
+			typePrefix
+		})
+	}
+
+	if (value instanceof ZodDefault || value instanceof ZodCatch) {
+		return traverseKey({
+			key,
+			value: value._def.innerType,
+			messages,
+			enums,
+			isOptional,
 			isInArray,
 			typePrefix
 		})
