@@ -651,4 +651,109 @@ message Message {
 		const proto = zodToProtobuf(schema)
 		expect(proto).toBe(expectedProto)
 	})
+
+	it('should handle transform', () => {
+		const schema = z.object({
+			name: z.string().transform((val) => val.toUpperCase())
+		})
+
+		const expectedProto = `
+syntax = "proto3";
+package default;
+
+message Message {
+    string name = 1;
+}`
+
+		const proto = zodToProtobuf(schema)
+		expect(proto).toBe(expectedProto.trim())
+	})
+
+	it('should handle chained transforms', () => {
+		const schema = z.object({
+			name: z
+				.string()
+				.transform((val) => val.trim())
+				.transform((val) => val.toUpperCase())
+		})
+
+		const expectedProto = `
+syntax = "proto3";
+package default;
+
+message Message {
+    string name = 1;
+}`
+
+		const proto = zodToProtobuf(schema)
+		expect(proto).toBe(expectedProto.trim())
+	})
+
+	it('should handle explicit pipe', () => {
+		const schema = z.object({
+			name: z.string().pipe(z.number())
+		})
+
+		const expectedProto = `
+syntax = "proto3";
+package default;
+
+message Message {
+    string name = 1;
+}`
+
+		const proto = zodToProtobuf(schema)
+		expect(proto).toBe(expectedProto.trim())
+	})
+
+	it('should handle default', () => {
+		const schema = z.object({
+			name: z.string().default('hello')
+		})
+
+		const expectedProto = `
+syntax = "proto3";
+package default;
+
+message Message {
+    string name = 1;
+}`
+
+		const proto = zodToProtobuf(schema)
+		expect(proto).toBe(expectedProto.trim())
+	})
+
+	it('should handle optional with default', () => {
+		const schema = z.object({
+			name: z.string().optional().default('hello')
+		})
+
+		const expectedProto = `
+syntax = "proto3";
+package default;
+
+message Message {
+    optional string name = 1;
+}`
+
+		const proto = zodToProtobuf(schema)
+		expect(proto).toBe(expectedProto.trim())
+	})
+
+	it('should handle catch', () => {
+		const schema = z.object({
+			name: z.string().catch('fallback')
+		})
+
+		const expectedProto = `
+syntax = "proto3";
+package default;
+
+message Message {
+    string name = 1;
+}`
+
+		const proto = zodToProtobuf(schema)
+		expect(proto).toBe(expectedProto.trim())
+	})
 })
