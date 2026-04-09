@@ -81,7 +81,7 @@ message Message {
 		expect(proto).toBe(expectedProto.trim())
 	})
 
-	it('should handle nested arrays', () => {
+	it('should handle nested arrays by wrapping in a message', () => {
 		const schema = z.object({
 			matrix: z.array(z.array(z.number().int()))
 		})
@@ -90,15 +90,19 @@ message Message {
 syntax = "proto3";
 package default;
 
+message MatrixList {
+    repeated int32 matrix = 1;
+}
+
 message Message {
-    repeated repeated int32 matrix = 1;
+    repeated MatrixList matrix = 1;
 }`
 
 		const proto = zodToProtobuf(schema)
 		expect(proto).toBe(expectedProto.trim())
 	})
 
-	it('should handle enums', () => {
+	it('should handle enums with UNSPECIFIED and prefixed values', () => {
 		const schema = z.object({
 			status: z.enum(['ACTIVE', 'INACTIVE'])
 		})
@@ -108,8 +112,9 @@ syntax = "proto3";
 package default;
 
 enum Status {
-    ACTIVE = 0;
-    INACTIVE = 1;
+    STATUS_UNSPECIFIED = 0;
+    STATUS_ACTIVE = 1;
+    STATUS_INACTIVE = 2;
 }
 
 message Message {
@@ -246,8 +251,9 @@ syntax = "proto3";
 package default;
 
 enum Status {
-    ACTIVE = 0;
-    INACTIVE = 1;
+    STATUS_UNSPECIFIED = 0;
+    STATUS_ACTIVE = 1;
+    STATUS_INACTIVE = 2;
 }
 
 message Tag {
@@ -379,9 +385,10 @@ syntax = "proto3";
 package example;
 
 enum Prefix_Role {
-    ADMIN = 0;
-    USER = 1;
-    GUEST = 2;
+    PREFIX_ROLE_UNSPECIFIED = 0;
+    PREFIX_ROLE_ADMIN = 1;
+    PREFIX_ROLE_USER = 2;
+    PREFIX_ROLE_GUEST = 3;
 }
 
 message Prefix_Address {
@@ -429,8 +436,8 @@ syntax = "proto3";
 package default;
 
 message Coordinates {
-       double coordinates_0 = 1;
-       double coordinates_1 = 2;
+    double coordinates_0 = 1;
+    double coordinates_1 = 2;
 }
 
 message Message {
@@ -459,9 +466,9 @@ message Coordinates_2 {
 }
 
 message Coordinates {
-       double coordinates_0 = 1;
-       string coordinates_1 = 2;
-       Coordinates_2 coordinates_2 = 3;
+    double coordinates_0 = 1;
+    string coordinates_1 = 2;
+    Coordinates_2 coordinates_2 = 3;
 }
 
 message Message {
@@ -551,7 +558,7 @@ message Message {
 		expect(proto).toBe(expectedProto.trim())
 	})
 
-	it('should handle 2D set with object', () => {
+	it('should handle 2D set with object by wrapping in message', () => {
 		const schema = z.object({
 			matrix: z.set(
 				z.set(
@@ -572,8 +579,12 @@ message Matrix {
     int32 count = 2;
 }
 
+message MatrixList {
+    repeated Matrix matrix = 1;
+}
+
 message Message {
-    repeated repeated Matrix matrix = 1;
+    repeated MatrixList matrix = 1;
 }`
 
 		const proto = zodToProtobuf(schema)
@@ -609,9 +620,9 @@ message Message {
 		expect(proto).toBe(expectedProto)
 	})
 
-	it('should handle multiple enums with same key using meta id', () => {
-		const colorScheme = z.enum(['red', 'blue']).meta({ id: 'color' })
-		const sizeScheme = z.enum(['small', 'big']).meta({ id: 'size' })
+	it('should handle multiple enums with different meta ids', () => {
+		const colorScheme = z.enum(['red', 'blue']).meta({ id: 'colorType' })
+		const sizeScheme = z.enum(['small', 'big']).meta({ id: 'sizeType' })
 		const schema = z.object({
 			color: z.object({
 				value: colorScheme
@@ -625,22 +636,24 @@ message Message {
 syntax = "proto3";
 package default;
 
-enum Color {
-    red = 0;
-    blue = 1;
+enum ColorType {
+    COLOR_TYPE_UNSPECIFIED = 0;
+    COLOR_TYPE_RED = 1;
+    COLOR_TYPE_BLUE = 2;
 }
 
-enum Size {
-    small = 0;
-    big = 1;
+enum SizeType {
+    SIZE_TYPE_UNSPECIFIED = 0;
+    SIZE_TYPE_SMALL = 1;
+    SIZE_TYPE_BIG = 2;
 }
 
 message Color {
-    Color value = 1;
+    ColorType value = 1;
 }
 
 message Size {
-    Size value = 1;
+    SizeType value = 1;
 }
 
 message Message {
@@ -650,6 +663,19 @@ message Message {
 
 		const proto = zodToProtobuf(schema)
 		expect(proto).toBe(expectedProto)
+	})
+
+	it('should throw on enum/message name collision', () => {
+		const colorScheme = z.enum(['red', 'blue']).meta({ id: 'color' })
+		const schema = z.object({
+			color: z.object({
+				value: colorScheme
+			})
+		})
+
+		expect(() => zodToProtobuf(schema)).toThrowError(
+			'Name collision: "Color" is used for both an enum and a message'
+		)
 	})
 
 	it('should handle transform', () => {
@@ -755,5 +781,218 @@ message Message {
 
 		const proto = zodToProtobuf(schema)
 		expect(proto).toBe(expectedProto.trim())
+	})
+
+	// --- New feature tests ---
+
+	it('should handle z.union as oneof', () => {
+		const schema = z.object({
+			value: z.union([z.string(), z.number().int()])
+		})
+
+		const expectedProto = `
+syntax = "proto3";
+package default;
+
+message Message {
+    oneof value {
+        string value_string = 1;
+        int32 value_int32 = 2;
+    }
+}`
+
+		const proto = zodToProtobuf(schema)
+		expect(proto).toBe(expectedProto.trim())
+	})
+
+	it('should handle z.union with objects as oneof', () => {
+		const schema = z.object({
+			result: z.union([
+				z.object({ data: z.string() }),
+				z.object({ error: z.string() })
+			])
+		})
+
+		const expectedProto = `
+syntax = "proto3";
+package default;
+
+message Result_message {
+    string data = 1;
+}
+
+message Result_message2 {
+    string error = 1;
+}
+
+message Message {
+    oneof result {
+        Result_message result_message = 1;
+        Result_message2 result_message2 = 2;
+    }
+}`
+
+		const proto = zodToProtobuf(schema)
+		expect(proto).toBe(expectedProto.trim())
+	})
+
+	it('should handle z.discriminatedUnion as oneof', () => {
+		const schema = z.object({
+			shape: z.discriminatedUnion('type', [
+				z.object({ type: z.literal('circle'), radius: z.number() }),
+				z.object({ type: z.literal('square'), side: z.number() })
+			])
+		})
+
+		const expectedProto = `
+syntax = "proto3";
+package default;
+
+message Shape_message {
+    string type = 1;
+    double radius = 2;
+}
+
+message Shape_message2 {
+    string type = 1;
+    double side = 2;
+}
+
+message Message {
+    oneof shape {
+        Shape_message shape_message = 1;
+        Shape_message2 shape_message2 = 2;
+    }
+}`
+
+		const proto = zodToProtobuf(schema)
+		expect(proto).toBe(expectedProto.trim())
+	})
+
+	it('should handle z.record with string keys', () => {
+		const schema = z.object({
+			metadata: z.record(z.string(), z.number().int())
+		})
+
+		const expectedProto = `
+syntax = "proto3";
+package default;
+
+message Message {
+    map<string, int32> metadata = 1;
+}`
+
+		const proto = zodToProtobuf(schema)
+		expect(proto).toBe(expectedProto.trim())
+	})
+
+	it('should handle z.record with object values', () => {
+		const schema = z.object({
+			users: z.record(
+				z.string(),
+				z.object({
+					name: z.string(),
+					age: z.number().int()
+				})
+			)
+		})
+
+		const expectedProto = `
+syntax = "proto3";
+package default;
+
+message UsersValue {
+    string name = 1;
+    int32 age = 2;
+}
+
+message Message {
+    map<string, UsersValue> users = 1;
+}`
+
+		const proto = zodToProtobuf(schema)
+		expect(proto).toBe(expectedProto.trim())
+	})
+
+	it('should handle z.literal string', () => {
+		const schema = z.object({
+			type: z.literal('hello')
+		})
+
+		const expectedProto = `
+syntax = "proto3";
+package default;
+
+message Message {
+    string type = 1;
+}`
+
+		const proto = zodToProtobuf(schema)
+		expect(proto).toBe(expectedProto.trim())
+	})
+
+	it('should handle z.literal number', () => {
+		const schema = z.object({
+			code: z.literal(42)
+		})
+
+		const expectedProto = `
+syntax = "proto3";
+package default;
+
+message Message {
+    int32 code = 1;
+}`
+
+		const proto = zodToProtobuf(schema)
+		expect(proto).toBe(expectedProto.trim())
+	})
+
+	it('should handle z.literal boolean', () => {
+		const schema = z.object({
+			flag: z.literal(true)
+		})
+
+		const expectedProto = `
+syntax = "proto3";
+package default;
+
+message Message {
+    bool flag = 1;
+}`
+
+		const proto = zodToProtobuf(schema)
+		expect(proto).toBe(expectedProto.trim())
+	})
+
+	it('should handle z.date with useGoogleTimestamp option', () => {
+		const schema = z.object({
+			createdAt: z.date(),
+			updatedAt: z.date()
+		})
+
+		const expectedProto = `
+syntax = "proto3";
+package default;
+
+import "google/protobuf/timestamp.proto";
+
+message Message {
+    google.protobuf.Timestamp createdAt = 1;
+    google.protobuf.Timestamp updatedAt = 2;
+}`
+
+		const proto = zodToProtobuf(schema, { useGoogleTimestamp: true })
+		expect(proto).toBe(expectedProto.trim())
+	})
+
+	it('should not include timestamp import when useGoogleTimestamp is false', () => {
+		const schema = z.object({
+			createdAt: z.date()
+		})
+
+		const proto = zodToProtobuf(schema)
+		expect(proto).not.toContain('import')
+		expect(proto).toContain('string createdAt')
 	})
 })
