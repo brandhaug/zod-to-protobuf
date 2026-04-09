@@ -37,7 +37,7 @@
 		"lint": "oxlint --type-aware",
 		"format": "oxfmt --write",
 		"format:check": "oxfmt --check",
-		"prepare": "husky",
+		"prepare": "git config core.hooksPath hooks",
 		"test": "vitest",
 		"validate": "npm run lint && npm run format:check && npm run test"
 	},
@@ -45,11 +45,7 @@
 		"inflection": "3.0.2"
 	},
 	"devDependencies": {
-		"@commitlint/cli": "19.8.1",
-		"@commitlint/config-conventional": "19.8.1",
 		"@types/node": "24.2.1",
-		"husky": "9.1.7",
-		"lint-staged": "16.1.5",
 		"oxfmt": "0.44.0",
 		"oxlint": "1.59.0",
 		"oxlint-tsgolint": "0.20.0",
@@ -58,11 +54,6 @@
 	},
 	"peerDependencies": {
 		"zod": "^4.0.0"
-	},
-	"lint-staged": {
-		"*.{ts,json}": [
-			"oxfmt --write"
-		]
 	},
 	"engines": {
 		"node": ">=20"

@@ -10,6 +10,5 @@
 		"typescript/prefer-as-const": "error",
 		"typescript/prefer-enum-initializers": "error",
 		"typescript/no-inferrable-types": "error"
-	},
-	"ignorePatterns": ["dist"]
+	}
 }

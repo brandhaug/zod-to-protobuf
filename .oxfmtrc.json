@@ -9,6 +9,5 @@
 	"semi": false,
 	"arrowParens": "always",
 	"bracketSameLine": false,
-	"bracketSpacing": true,
-	"ignorePatterns": ["**/dist"]
+	"bracketSpacing": true
 }
