@@ -1,6 +1,6 @@
 {
 	"name": "zod-to-protobuf",
-	"version": "0.0.0",
+	"version": "2.6.0",
 	"type": "module",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
@@ -49,11 +49,9 @@
 		"@biomejs/biome": "2.1.4",
 		"@commitlint/cli": "19.8.1",
 		"@commitlint/config-conventional": "19.8.1",
-		"@semantic-release/changelog": "6.0.3",
 		"@types/node": "24.2.1",
 		"husky": "9.1.7",
 		"lint-staged": "16.1.5",
-		"semantic-release": "24.2.7",
 		"typescript": "5.9.2",
 		"vitest": "3.2.4"
 	},
