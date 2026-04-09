@@ -1,0 +1,14 @@
+{
+	"$schema": "./node_modules/oxlint/configuration_schema.json",
+	"plugins": ["typescript", "unicorn", "oxc", "import"],
+	"categories": {
+		"correctness": "error"
+	},
+	"rules": {
+		"no-param-reassign": "error",
+		"default-param-last": "error",
+		"typescript/prefer-as-const": "error",
+		"typescript/prefer-enum-initializers": "error",
+		"typescript/no-inferrable-types": "error"
+	}
+}

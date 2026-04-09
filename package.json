@@ -1,12 +1,30 @@
 {
 	"name": "zod-to-protobuf",
 	"version": "2.7.0",
-	"type": "module",
-	"main": "dist/index.js",
-	"types": "dist/index.d.ts",
+	"description": "A utility to convert Zod schemas to Protocol Buffers definitions.",
+	"keywords": [
+		"conversion",
+		"protobuf",
+		"schema",
+		"typescript",
+		"zod"
+	],
+	"homepage": "https://github.com/brandhaug/zod-to-protobuf#readme",
+	"bugs": {
+		"url": "https://github.com/brandhaug/zod-to-protobuf/issues"
+	},
+	"license": "MIT",
+	"author": "Martin Brandhaug",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/brandhaug/zod-to-protobuf.git"
+	},
 	"files": [
 		"dist/"
 	],
+	"type": "module",
+	"main": "dist/index.js",
+	"types": "dist/index.d.ts",
 	"exports": {
 		".": {
 			"types": "./dist/index.d.ts",
@@ -16,49 +34,26 @@
 	"scripts": {
 		"build": "tsc",
 		"start": "node dist/index.js",
-		"lint": "biome lint",
-		"check-write": "biome check --write",
-		"typecheck": "tsc --noEmit",
-		"prepare": "husky",
+		"lint": "oxlint --type-aware",
+		"format": "oxfmt --write",
+		"format:check": "oxfmt --check",
+		"prepare": "git config core.hooksPath hooks",
 		"test": "vitest",
-		"validate": "npm run lint && npm run typecheck && npm run test"
+		"validate": "npm run lint && npm run format:check && npm run test"
 	},
-	"keywords": [
-		"zod",
-		"protobuf",
-		"schema",
-		"conversion",
-		"typescript"
-	],
-	"author": "Martin Brandhaug",
-	"license": "MIT",
-	"description": "A utility to convert Zod schemas to Protocol Buffers definitions.",
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/brandhaug/zod-to-protobuf.git"
-	},
-	"bugs": {
-		"url": "https://github.com/brandhaug/zod-to-protobuf/issues"
-	},
-	"homepage": "https://github.com/brandhaug/zod-to-protobuf#readme",
 	"dependencies": {
-		"inflection": "3.0.2",
-		"zod": "4.0.17"
+		"inflection": "3.0.2"
 	},
 	"devDependencies": {
-		"@biomejs/biome": "2.1.4",
-		"@commitlint/cli": "19.8.1",
-		"@commitlint/config-conventional": "19.8.1",
 		"@types/node": "24.2.1",
-		"husky": "9.1.7",
-		"lint-staged": "16.1.5",
+		"oxfmt": "0.44.0",
+		"oxlint": "1.59.0",
+		"oxlint-tsgolint": "0.20.0",
 		"typescript": "5.9.2",
 		"vitest": "3.2.4"
 	},
-	"lint-staged": {
-		"*.{ts,json}": [
-			"biome check --write"
-		]
+	"peerDependencies": {
+		"zod": "^4.0.0"
 	},
 	"engines": {
 		"node": ">=20"
