@@ -19,6 +19,7 @@
 		"type": "git",
 		"url": "https://github.com/brandhaug/zod-to-protobuf.git"
 	},
+	"workspaces": [],
 	"files": [
 		"dist/"
 	],
@@ -45,17 +46,27 @@
 		"inflection": "3.0.2"
 	},
 	"devDependencies": {
-		"@types/node": "24.2.1",
-		"oxfmt": "0.44.0",
-		"oxlint": "1.59.0",
-		"oxlint-tsgolint": "0.20.0",
-		"typescript": "5.9.2",
-		"vitest": "3.2.4"
+		"@types/node": "catalog:",
+		"oxfmt": "catalog:",
+		"oxlint": "catalog:",
+		"oxlint-tsgolint": "catalog:",
+		"typescript": "catalog:",
+		"vitest": "catalog:"
 	},
 	"peerDependencies": {
 		"zod": "^4.0.0"
 	},
 	"engines": {
-		"node": ">=20"
+		"bun": ">=1.4.0"
+	},
+	"packageManager": "bun@1.4.0",
+	"catalog": {
+		"@types/node": "24.2.1",
+		"inflection": "3.0.2",
+		"oxfmt": "0.44.0",
+		"oxlint": "1.59.0",
+		"oxlint-tsgolint": "0.20.0",
+		"typescript": "5.9.2",
+		"vitest": "3.2.4"
 	}
 }
