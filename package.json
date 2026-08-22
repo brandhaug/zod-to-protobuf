@@ -1,72 +1,72 @@
 {
-	"name": "zod-to-protobuf",
-	"version": "2.9.0",
-	"description": "A utility to convert Zod schemas to Protocol Buffers definitions.",
-	"keywords": [
-		"conversion",
-		"protobuf",
-		"schema",
-		"typescript",
-		"zod"
-	],
-	"homepage": "https://github.com/brandhaug/zod-to-protobuf#readme",
-	"bugs": {
-		"url": "https://github.com/brandhaug/zod-to-protobuf/issues"
-	},
-	"license": "MIT",
-	"author": "Martin Brandhaug",
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/brandhaug/zod-to-protobuf.git"
-	},
-	"workspaces": [],
-	"files": [
-		"dist/"
-	],
-	"type": "module",
-	"main": "dist/index.js",
-	"types": "dist/index.d.ts",
-	"exports": {
-		".": {
-			"types": "./dist/index.d.ts",
-			"import": "./dist/index.js"
-		}
-	},
-	"scripts": {
-		"build": "tsc",
-		"start": "node dist/index.js",
-		"lint": "oxlint --type-aware",
-		"format": "oxfmt --write",
-		"format:check": "oxfmt --check",
-		"prepare": "git config core.hooksPath .githooks",
-		"test": "vitest",
-		"validate": "npm run lint && npm run format:check && npm run test"
-	},
-	"dependencies": {
-		"inflection": "3.0.2"
-	},
-	"devDependencies": {
-		"@types/node": "catalog:",
-		"oxfmt": "catalog:",
-		"oxlint": "catalog:",
-		"oxlint-tsgolint": "catalog:",
-		"typescript": "catalog:",
-		"vitest": "catalog:"
-	},
-	"peerDependencies": {
-		"zod": "^4.0.0"
-	},
-	"engines": {
-		"bun": ">=1.4.0"
-	},
-	"packageManager": "bun@1.4.0",
-	"catalog": {
-		"@types/node": "24.2.1",
-		"inflection": "3.0.2",
-		"oxfmt": "0.44.0",
-		"oxlint": "1.59.0",
-		"oxlint-tsgolint": "0.20.0",
-		"typescript": "5.9.2",
-		"vitest": "3.2.4"
-	}
+  "name": "zod-to-protobuf",
+  "version": "2.9.0",
+  "description": "A utility to convert Zod schemas to Protocol Buffers definitions.",
+  "keywords": [
+    "conversion",
+    "protobuf",
+    "schema",
+    "typescript",
+    "zod"
+  ],
+  "homepage": "https://github.com/brandhaug/zod-to-protobuf#readme",
+  "bugs": {
+    "url": "https://github.com/brandhaug/zod-to-protobuf/issues"
+  },
+  "license": "MIT",
+  "author": "Martin Brandhaug",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/brandhaug/zod-to-protobuf.git"
+  },
+  "workspaces": [],
+  "files": [
+    "dist/"
+  ],
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "lint": "oxlint --type-aware",
+    "format": "oxfmt --write",
+    "format:check": "oxfmt --check",
+    "prepare": "git config core.hooksPath .githooks",
+    "test": "vitest",
+    "validate": "npm run lint && npm run format:check && npm run test"
+  },
+  "dependencies": {
+    "inflection": "3.0.2"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "oxfmt": "catalog:",
+    "oxlint": "catalog:",
+    "oxlint-tsgolint": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  },
+  "peerDependencies": {
+    "zod": "^4.0.0"
+  },
+  "engines": {
+    "bun": ">=1.4.0"
+  },
+  "packageManager": "bun@1.4.0",
+  "catalog": {
+    "@types/node": "24.2.1",
+    "inflection": "3.0.2",
+    "oxfmt": "0.44.0",
+    "oxlint": "1.59.0",
+    "oxlint-tsgolint": "0.20.0",
+    "typescript": "5.9.2",
+    "vitest": "4.1.11"
+  }
 }
