@@ -1,5 +1,22 @@
 # Changelog
 
+## [2.9.1](https://github.com/brandhaug/zod-to-protobuf/compare/zod-to-protobuf-v2.9.0...zod-to-protobuf-v2.9.1) (2026-08-22)
+
+
+### Bug Fixes
+
+* ignore release-please generated CHANGELOG.md in oxfmt ([403fa14](https://github.com/brandhaug/zod-to-protobuf/commit/403fa142c12a91f5d9f9a294cc5dd539de68030c))
+
+
+### Miscellaneous
+
+* **deps:** bump @types/node from 24.2.1 to 26.2.0 ([#13](https://github.com/brandhaug/zod-to-protobuf/issues/13)) ([292b0af](https://github.com/brandhaug/zod-to-protobuf/commit/292b0af55c78218071b48c8fffca214f7b598ab8))
+* **deps:** bump oxfmt from 0.44.0 to 0.64.0 ([#14](https://github.com/brandhaug/zod-to-protobuf/issues/14)) ([6f0e13c](https://github.com/brandhaug/zod-to-protobuf/commit/6f0e13c39434d8cd5394966ee8217752ccf160ac))
+* **deps:** bump oxlint from 1.59.0 to 1.79.0 ([#15](https://github.com/brandhaug/zod-to-protobuf/issues/15)) ([685ca69](https://github.com/brandhaug/zod-to-protobuf/commit/685ca69f1b744d30aee861033badc127ac06048a))
+* **deps:** bump oxlint-tsgolint from 0.20.0 to 7.0.2001 ([#16](https://github.com/brandhaug/zod-to-protobuf/issues/16)) ([7f576f5](https://github.com/brandhaug/zod-to-protobuf/commit/7f576f55b6e7a0d209c932309ebfd5c16218e601))
+* **deps:** bump typescript from 5.9.2 to 7.0.2 ([#17](https://github.com/brandhaug/zod-to-protobuf/issues/17)) ([c13e57a](https://github.com/brandhaug/zod-to-protobuf/commit/c13e57a68c64416f2e0bdc973e1a9b390d986509))
+* **deps:** bump vitest from 3.2.4 to 4.1.11 ([#18](https://github.com/brandhaug/zod-to-protobuf/issues/18)) ([829480d](https://github.com/brandhaug/zod-to-protobuf/commit/829480d897c945d85791cd1f5335b501e6f4a0be))
+
 ## [2.9.0](https://github.com/brandhaug/zod-to-protobuf/compare/zod-to-protobuf-v2.8.0...zod-to-protobuf-v2.9.0) (2026-04-09)
 
 ### Features
