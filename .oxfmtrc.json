@@ -9,5 +9,6 @@
 	"semi": false,
 	"arrowParens": "always",
 	"bracketSameLine": false,
-	"bracketSpacing": true
+	"bracketSpacing": true,
+	"ignorePatterns": ["CHANGELOG.md"]
 }
