@@ -63,7 +63,7 @@
 	"catalog": {
 		"@types/node": "26.2.0",
 		"inflection": "3.0.2",
-		"oxfmt": "0.44.0",
+		"oxfmt": "0.64.0",
 		"oxlint": "1.59.0",
 		"oxlint-tsgolint": "0.20.0",
 		"typescript": "5.9.2",
