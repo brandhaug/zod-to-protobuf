@@ -65,7 +65,7 @@
 		"inflection": "3.0.2",
 		"oxfmt": "0.64.0",
 		"oxlint": "1.79.0",
-		"oxlint-tsgolint": "0.20.0",
+		"oxlint-tsgolint": "7.0.2001",
 		"typescript": "5.9.2",
 		"vitest": "3.2.4"
 	}
