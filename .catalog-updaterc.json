@@ -1,0 +1,10 @@
+{
+	"branchPrefix": "catalog-update",
+	"defaultBranch": "master",
+	"maxOpenPrs": 20,
+	"concurrency": 10,
+	"packageManager": "bun",
+	"ignore": [],
+	"minReleaseAgeDays": 3,
+	"autoMerge": { "enabled": true, "mergeMethod": "squash" }
+}
