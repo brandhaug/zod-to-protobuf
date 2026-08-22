@@ -67,6 +67,6 @@
 		"oxlint": "1.79.0",
 		"oxlint-tsgolint": "7.0.2001",
 		"typescript": "7.0.2",
-		"vitest": "3.2.4"
+		"vitest": "4.1.11"
 	}
 }
