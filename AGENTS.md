@@ -21,14 +21,13 @@ No lockfile is generated (`.npmrc` has `package-lock=false`). Dependencies are p
 
 ## Development Commands
 
-| Command                | Description                       |
-| ---------------------- | --------------------------------- |
-| `npm run build`        | Compile TypeScript to `dist/`     |
-| `npm run lint`         | Run oxlint with type-aware checks |
-| `npm run format`       | Format with oxfmt (write mode)    |
-| `npm run format:check` | Check formatting without writing  |
-| `npm test`             | Run Vitest in watch mode          |
-| `npm run validate`     | Lint + format check + tests (CI)  |
+| Command            | Description                       |
+| ------------------ | --------------------------------- |
+| `npm run build`    | Compile TypeScript to `dist/`     |
+| `npm run lint`     | Run oxlint with type-aware checks |
+| `npm run format`   | Format with oxfmt (write mode)    |
+| `npm test`         | Run Vitest in watch mode          |
+| `npm run validate` | Lint + tests (CI)                 |
 
 ## Testing
 
@@ -42,7 +41,8 @@ No lockfile is generated (`.npmrc` has `package-lock=false`). Dependencies are p
 ## PR Guidelines
 
 - Target branch: `master`
-- All checks must pass: lint, format, tests, build
+- All CI checks must pass: lint, tests, build
+- Formatting is enforced locally by the git pre-commit hook (`.githooks/pre-commit`), not in CI; it runs `oxfmt --write` plus `oxlint --fix` on commit
 - Run `npm run validate` before submitting
 
 ## Commit & Release Conventions
