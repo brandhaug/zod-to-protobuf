@@ -284,14 +284,14 @@ message Message {
 	})
 
 	it('should throw exception on unsupported Object type', () => {
-		// @ts-expect-error
+		// @ts-expect-error -- exercising the runtime guard with a non-schema value
 		expect(() => zodToProtobuf({ test: 1 })).toThrowError(
 			'Unsupported type: Object'
 		)
 	})
 
 	it('should throw exception on unsupported Number type', () => {
-		// @ts-expect-error
+		// @ts-expect-error -- exercising the runtime guard with a non-schema value
 		expect(() => zodToProtobuf(1)).toThrowError('Unsupported type: Number')
 	})
 

@@ -19,12 +19,15 @@ import {
 	ZodSet,
 	ZodString,
 	ZodTuple,
-	ZodType,
 	ZodUnion,
 	type ZodTypeAny
 } from 'zod'
+// SAFETY note on the umbrella type below: $ZodType is zod v4's structural
+// schema interface, so every runtime `instanceof ZodXxx` narrowing is
+// assignable to it without assertions -- unlike the nominal ZodTypeAny class.
+import { type $ZodType } from 'zod/v4/core'
 
-interface ZodToProtobufOptions {
+type ZodToProtobufOptions = {
 	packageName?: string
 	rootMessageName?: string
 	typePrefix?: string
@@ -38,7 +41,7 @@ class UnsupportedTypeException extends Error {
 	}
 }
 
-interface ProtobufField {
+type ProtobufField = {
 	types: Array<string | null>
 	name: string
 	oneofMembers?: ProtobufField[]
@@ -49,7 +52,7 @@ interface ProtobufField {
  * @param value The ZodNumber instance.
  * @returns The Protobuf type name.
  */
-const getNumberTypeName = ({ value }: { value: ZodNumber }): string => {
+function getNumberTypeName({ value }: { value: ZodNumber }): string {
 	return value.isInt ? 'int32' : 'double'
 }
 
@@ -58,7 +61,7 @@ const getNumberTypeName = ({ value }: { value: ZodNumber }): string => {
  * @param value The string.
  * @returns The PascalCase string.
  */
-const toPascalCase = ({ value }: { value: string }): string => {
+function toPascalCase({ value }: { value: string }): string {
 	return value
 		.split('.')
 		.map((part) => part.charAt(0).toUpperCase() + part.slice(1))
@@ -70,14 +73,14 @@ const toPascalCase = ({ value }: { value: string }): string => {
  * @param value The string.
  * @returns The SCREAMING_SNAKE_CASE string.
  */
-const toScreamingSnakeCase = ({ value }: { value: string }): string => {
+function toScreamingSnakeCase({ value }: { value: string }): string {
 	return value
-		.replace(/([a-z0-9])([A-Z])/g, '$1_$2')
-		.replace(/([A-Z])([A-Z][a-z])/g, '$1_$2')
+		.replaceAll(/([a-z0-9])([A-Z])/g, '$1_$2')
+		.replaceAll(/([A-Z])([A-Z][a-z])/g, '$1_$2')
 		.toUpperCase()
 }
 
-const protobufFieldToType = ({ field }: { field: ProtobufField }) => {
+function protobufFieldToType({ field }: { field: ProtobufField }) {
 	return field.types.filter(Boolean).join(' ')
 }
 
@@ -87,7 +90,7 @@ const protobufFieldToType = ({ field }: { field: ProtobufField }) => {
  * @param fields The ProtobufField array.
  * @returns An array of formatted field strings.
  */
-const formatFields = ({ fields }: { fields: ProtobufField[] }): string[] => {
+function formatFields({ fields }: { fields: ProtobufField[] }): string[] {
 	const lines: string[] = []
 	let fieldNum = 1
 	for (const field of fields) {
@@ -115,11 +118,9 @@ const formatFields = ({ fields }: { fields: ProtobufField[] }): string[] => {
  * @param value The Zod schema value.
  * @returns A short string suffix.
  */
-const getOneofTypeSuffix = ({ value }: { value: unknown }): string => {
+function getOneofTypeSuffix({ value }: { value: unknown }): string {
 	if (value instanceof ZodString) return 'string'
-	if (value instanceof ZodNumber) {
-		return (value as ZodNumber).isInt ? 'int32' : 'double'
-	}
+	if (value instanceof ZodNumber) return value.isInt ? 'int32' : 'double'
 	if (value instanceof ZodBoolean) return 'bool'
 	if (value instanceof ZodBigInt) return 'int64'
 	if (value instanceof ZodDate) return 'date'
@@ -128,6 +129,49 @@ const getOneofTypeSuffix = ({ value }: { value: unknown }): string => {
 	if (value instanceof ZodEnum) return 'enum'
 	if (value instanceof ZodLiteral) return 'literal'
 	return 'value'
+}
+
+/**
+ * Maps a ZodLiteral to its Protobuf scalar type by inspecting the JS runtime
+ * type of the literal's held values.
+ * @param value The ZodLiteral instance.
+ * @returns The Protobuf scalar type name.
+ */
+function getLiteralTypeName({ value }: { value: ZodLiteral }): string {
+	/* oxlint-disable anti-slop/no-runtime-typeof --
+	 * Discriminating a ZodLiteral by the JavaScript primitive type of its
+	 * held values IS this library's domain logic, not smuggled slop. proto3's
+	 * int32/double/string/bool split follows the runtime primitive type, and
+	 * zod exposes no static marker distinguishing z.literal("x") from
+	 * z.literal(1). This function is the I/O boundary; there is nothing
+	 * earlier to parse against.
+	 */
+	const first = value.values.values().next().value
+	if (typeof first === 'string') return 'string'
+	if (typeof first === 'number') {
+		return Number.isInteger(first) ? 'int32' : 'double'
+	}
+	if (typeof first === 'boolean') return 'bool'
+	throw new UnsupportedTypeException(`ZodLiteral(${typeof first})`)
+	/* oxlint-enable anti-slop/no-runtime-typeof */
+}
+
+/**
+ * Wraps already-generated fields as repeated members under an outer key,
+ * used when flattening nested array/set element types.
+ * @param field The generated element field.
+ * @param key The outer (plural) key.
+ * @returns The repeated field definition.
+ */
+function toRepeatedField(field: ProtobufField, key: string): ProtobufField {
+	const repeatedField: ProtobufField = {
+		types: ['repeated', ...field.types],
+		name: key
+	}
+	if (field.oneofMembers) {
+		repeatedField.oneofMembers = field.oneofMembers
+	}
+	return repeatedField
 }
 
 /**
@@ -142,7 +186,7 @@ const getOneofTypeSuffix = ({ value }: { value: unknown }): string => {
  * @param hasTimestamp Mutable ref tracking if Timestamp import is needed.
  * @returns An array of Protobuf field definitions.
  */
-const traverseArray = ({
+function traverseArray({
 	key,
 	value,
 	messages,
@@ -152,22 +196,20 @@ const traverseArray = ({
 	hasTimestamp
 }: {
 	key: string
-	value: ZodArray<ZodTypeAny> | ZodSet<ZodTypeAny>
+	value: ZodArray | ZodSet
 	messages: Map<string, string[]>
 	enums: Map<string, string[]>
 	typePrefix: string | null
 	useGoogleTimestamp: boolean
 	hasTimestamp: { value: boolean }
-}): ProtobufField[] => {
+}): ProtobufField[] {
 	const nestedValue =
-		value instanceof ZodArray
-			? value.element
-			: (value as ZodSet<ZodTypeAny>).def.valueType
+		value instanceof ZodArray ? value.element : value.def.valueType
 
 	// Unwrap optional/nullable to check the underlying type
 	let unwrapped: unknown = nestedValue
 	while (unwrapped instanceof ZodOptional || unwrapped instanceof ZodNullable) {
-		unwrapped = (unwrapped as ZodOptional<ZodTypeAny>).unwrap()
+		unwrapped = unwrapped.unwrap()
 	}
 
 	// Nested array/set: wrap inner array in a message to avoid invalid `repeated repeated`
@@ -187,7 +229,7 @@ const traverseArray = ({
 
 		const innerFields = traverseArray({
 			key: singularKey,
-			value: unwrapped as ZodArray<ZodTypeAny> | ZodSet<ZodTypeAny>,
+			value: unwrapped,
 			messages,
 			enums,
 			typePrefix,
@@ -217,11 +259,7 @@ const traverseArray = ({
 		useGoogleTimestamp,
 		hasTimestamp
 	})
-	return elementFields.map((field) => ({
-		...field,
-		types: ['repeated', ...field.types],
-		name: key
-	}))
+	return elementFields.map((field) => toRepeatedField(field, key))
 }
 
 /**
@@ -235,7 +273,7 @@ const traverseArray = ({
  * @param hasTimestamp Mutable ref tracking if Timestamp import is needed.
  * @returns An array of Protobuf field definitions.
  */
-const traverseMap = ({
+function traverseMap({
 	key,
 	value,
 	messages,
@@ -245,13 +283,13 @@ const traverseMap = ({
 	hasTimestamp
 }: {
 	key: string
-	value: ZodMap<ZodTypeAny, ZodTypeAny>
+	value: ZodMap
 	messages: Map<string, string[]>
 	enums: Map<string, string[]>
 	typePrefix: string | null
 	useGoogleTimestamp: boolean
 	hasTimestamp: { value: boolean }
-}): ProtobufField[] => {
+}): ProtobufField[] {
 	const keyType = traverseKey({
 		key: `${key}Key`,
 		value: value.def.keyType,
@@ -305,7 +343,7 @@ const traverseMap = ({
  * @param hasTimestamp Mutable ref tracking if Timestamp import is needed.
  * @returns An array of Protobuf field definitions.
  */
-const traverseKey = ({
+function traverseKey({
 	key,
 	value,
 	messages,
@@ -317,7 +355,7 @@ const traverseKey = ({
 	hasTimestamp
 }: {
 	key: string
-	value: unknown
+	value: $ZodType
 	messages: Map<string, string[]>
 	enums: Map<string, string[]>
 	isOptional: boolean
@@ -325,11 +363,11 @@ const traverseKey = ({
 	typePrefix: string | null
 	useGoogleTimestamp: boolean
 	hasTimestamp: { value: boolean }
-}): ProtobufField[] => {
+}): ProtobufField[] {
 	if (value instanceof ZodOptional || value instanceof ZodNullable) {
 		return traverseKey({
 			key,
-			value: (value as ZodOptional<ZodTypeAny>).unwrap(),
+			value: value.unwrap(),
 			messages,
 			enums,
 			isOptional: true,
@@ -343,7 +381,7 @@ const traverseKey = ({
 	if (value instanceof ZodPipe) {
 		return traverseKey({
 			key,
-			value: (value as ZodPipe<ZodTypeAny, ZodTypeAny>).in,
+			value: value.in,
 			messages,
 			enums,
 			isOptional,
@@ -357,7 +395,7 @@ const traverseKey = ({
 	if (value instanceof ZodDefault || value instanceof ZodCatch) {
 		return traverseKey({
 			key,
-			value: (value as ZodDefault<ZodTypeAny> | ZodCatch<ZodTypeAny>).unwrap(),
+			value: value.unwrap(),
 			messages,
 			enums,
 			isOptional,
@@ -371,7 +409,7 @@ const traverseKey = ({
 	if (value instanceof ZodArray || value instanceof ZodSet) {
 		return traverseArray({
 			key,
-			value: value as ZodArray<ZodTypeAny> | ZodSet<ZodTypeAny>,
+			value,
 			messages,
 			enums,
 			typePrefix,
@@ -383,7 +421,7 @@ const traverseKey = ({
 	if (value instanceof ZodMap) {
 		return traverseMap({
 			key,
-			value: value as ZodMap<ZodTypeAny, ZodTypeAny>,
+			value,
 			messages,
 			enums,
 			typePrefix,
@@ -393,10 +431,9 @@ const traverseKey = ({
 	}
 
 	if (value instanceof ZodRecord) {
-		const recordValue = value as ZodRecord
-		const keyType = traverseKey({
+		const keyField = traverseKey({
 			key: `${key}Key`,
-			value: recordValue.keyType,
+			value: value.keyType,
 			messages,
 			enums,
 			isOptional: false,
@@ -405,9 +442,9 @@ const traverseKey = ({
 			useGoogleTimestamp,
 			hasTimestamp
 		})
-		const valueType = traverseKey({
+		const valueField = traverseKey({
 			key: `${key}Value`,
-			value: recordValue.valueType,
+			value: value.valueType,
 			messages,
 			enums,
 			isOptional: false,
@@ -417,14 +454,14 @@ const traverseKey = ({
 			hasTimestamp
 		})
 
-		if (!keyType[0] || keyType.length !== 1) {
+		if (!keyField[0] || keyField.length !== 1) {
 			throw new UnsupportedTypeException(`${key} record key`)
 		}
-		if (!valueType[0] || valueType.length !== 1) {
+		if (!valueField[0] || valueField.length !== 1) {
 			throw new UnsupportedTypeException(`${key} record value`)
 		}
 
-		const mapType = `map<${protobufFieldToType({ field: keyType[0] })}, ${protobufFieldToType({ field: valueType[0] })}>`
+		const mapType = `map<${protobufFieldToType({ field: keyField[0] })}, ${protobufFieldToType({ field: valueField[0] })}>`
 		return [
 			{
 				types: [mapType],
@@ -434,8 +471,7 @@ const traverseKey = ({
 	}
 
 	if (value instanceof ZodUnion || value instanceof ZodDiscriminatedUnion) {
-		const options = (value as ZodUnion<[ZodTypeAny, ...ZodTypeAny[]]>)
-			.options as ZodTypeAny[]
+		const options = value.options
 		const members: ProtobufField[] = []
 		const usedSuffixes = new Set<string>()
 
@@ -534,9 +570,9 @@ const traverseKey = ({
 		}
 		const prefix = toScreamingSnakeCase({ value: enumName })
 		const unspecified = `    ${prefix}_UNSPECIFIED = 0;`
-		const enumFields = (value.options as Array<string | number>)
+		const enumFields = value.options
 			.map(
-				(option: string | number, index: number) =>
+				(option, index) =>
 					`    ${prefix}_${String(option).toUpperCase()} = ${index + 1};`
 			)
 			.join('\n')
@@ -552,23 +588,12 @@ const traverseKey = ({
 	}
 
 	if (value instanceof ZodLiteral) {
-		const literalValues = (value as ZodLiteral).values
-		const first = literalValues.values().next().value
-		if (typeof first === 'string') {
-			return [{ types: [optional, 'string'], name: key }]
-		}
-		if (typeof first === 'number') {
-			return [
-				{
-					types: [optional, Number.isInteger(first) ? 'int32' : 'double'],
-					name: key
-				}
-			]
-		}
-		if (typeof first === 'boolean') {
-			return [{ types: [optional, 'bool'], name: key }]
-		}
-		throw new UnsupportedTypeException(`ZodLiteral(${typeof first})`)
+		return [
+			{
+				types: [optional, getLiteralTypeName({ value })],
+				name: key
+			}
+		]
 	}
 
 	if (value instanceof ZodDate) {
@@ -599,22 +624,21 @@ const traverseKey = ({
 	}
 
 	if (value instanceof ZodTuple) {
-		const tupleFields: ProtobufField[] = (
-			(value as ZodTuple<[ZodTypeAny, ...ZodTypeAny[]]>).def
-				.items as ZodTypeAny[]
-		).flatMap((item: ZodTypeAny, index: number) => {
-			return traverseKey({
-				key: `${key}_${index}`,
-				value: item,
-				messages,
-				enums,
-				isOptional: false,
-				isInArray,
-				typePrefix,
-				useGoogleTimestamp,
-				hasTimestamp
-			})
-		})
+		const tupleFields: ProtobufField[] = value.def.items.flatMap(
+			(item, index) => {
+				return traverseKey({
+					key: `${key}_${index}`,
+					value: item,
+					messages,
+					enums,
+					isOptional: false,
+					isInArray,
+					typePrefix,
+					useGoogleTimestamp,
+					hasTimestamp
+				})
+			}
+		)
 
 		let tupleMessageName = toPascalCase({ value: key })
 		if (typePrefix) {
@@ -629,11 +653,7 @@ const traverseKey = ({
 		]
 	}
 
-	if (value instanceof ZodType) {
-		throw new UnsupportedTypeException(value.constructor.name)
-	}
-
-	throw new UnsupportedTypeException(typeof value)
+	throw new UnsupportedTypeException(value.constructor.name)
 }
 
 /**
@@ -646,7 +666,7 @@ const traverseKey = ({
  * @param hasTimestamp Mutable ref tracking if Timestamp import is needed.
  * @returns An array of formatted Protobuf field strings.
  */
-const traverseSchema = ({
+function traverseSchema({
 	schema,
 	messages,
 	enums,
@@ -654,13 +674,13 @@ const traverseSchema = ({
 	useGoogleTimestamp,
 	hasTimestamp
 }: {
-	schema: ZodTypeAny
+	schema: $ZodType
 	messages: Map<string, string[]>
 	enums: Map<string, string[]>
 	typePrefix: string | null
 	useGoogleTimestamp: boolean
 	hasTimestamp: { value: boolean }
-}): string[] => {
+}): string[] {
 	if (!(schema instanceof ZodObject)) {
 		throw new UnsupportedTypeException(schema.constructor.name)
 	}
@@ -688,10 +708,10 @@ const traverseSchema = ({
  * @param options The conversion options.
  * @returns The Protobuf definition.
  */
-const zodToProtobuf = (
+function zodToProtobuf(
 	schema: ZodTypeAny,
 	options: ZodToProtobufOptions = {}
-): string => {
+): string {
 	const {
 		packageName = 'default',
 		rootMessageName = 'Message',
@@ -703,7 +723,7 @@ const zodToProtobuf = (
 	const enums = new Map<string, string[]>()
 	const hasTimestamp = { value: false }
 
-	const fields = traverseSchema({
+	const rootFields = traverseSchema({
 		schema,
 		messages,
 		enums,
@@ -711,7 +731,7 @@ const zodToProtobuf = (
 		useGoogleTimestamp,
 		hasTimestamp
 	})
-	messages.set(`${typePrefix}${rootMessageName}`, fields)
+	messages.set(`${typePrefix}${rootMessageName}`, rootFields)
 
 	// Validate no enum/message name collisions
 	for (const enumName of enums.keys()) {
@@ -722,13 +742,11 @@ const zodToProtobuf = (
 		}
 	}
 
-	const enumsString = Array.from(enums.values()).map((enumDef) =>
-		enumDef.join('\n')
-	)
+	const enumsString = [...enums.values()].map((enumDef) => enumDef.join('\n'))
 
-	const messagesString = Array.from(messages.entries()).map(
-		([name, fields]) =>
-			`message ${name} {\n${fields.map((field) => `    ${field}`).join('\n')}\n}`
+	const messagesString = [...messages.entries()].map(
+		([name, fieldLines]) =>
+			`message ${name} {\n${fieldLines.map((field) => `    ${field}`).join('\n')}\n}`
 	)
 
 	const content = [enumsString, messagesString]

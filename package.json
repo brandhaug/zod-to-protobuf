@@ -49,7 +49,8 @@
 		"oxfmt": "catalog:",
 		"oxlint": "catalog:",
 		"oxlint-tsgolint": "catalog:",
-		"typescript": "catalog:"
+		"typescript": "catalog:",
+		"ultracite": "7.10.6"
 	},
 	"peerDependencies": {
 		"zod": "^4.0.0"
