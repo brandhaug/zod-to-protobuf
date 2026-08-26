@@ -56,6 +56,12 @@ type Context = {
 	hasTimestamp: boolean
 }
 
+/** Result of stripping wire-invisible wrapper layers off a schema. */
+type UnwrappedValue = {
+	core: $ZodType
+	optional: boolean
+}
+
 /**
  * Converts a Zod number to its corresponding Protobuf type name.
  * @param value The ZodNumber instance.
@@ -164,6 +170,22 @@ function getLiteralTypeName(value: ZodLiteral): string {
 }
 
 /**
+ * Maps a Zod schema to its Protobuf scalar type name, or undefined when the
+ * schema is anything other than a plain scalar (collections, objects, enums,
+ * dates, unions... -- those have dedicated handling or their own error).
+ * @param value The Zod schema value.
+ * @returns The Protobuf scalar type name, or undefined.
+ */
+function getScalarTypeName(value: $ZodType): string | undefined {
+	if (value instanceof ZodString) return 'string'
+	if (value instanceof ZodBoolean) return 'bool'
+	if (value instanceof ZodBigInt) return 'int64'
+	if (value instanceof ZodNumber) return getNumberTypeName(value)
+	if (value instanceof ZodLiteral) return getLiteralTypeName(value)
+	return undefined
+}
+
+/**
  * Wraps already-generated fields as repeated members under an outer key,
  * used when flattening nested array/set element types.
  * @param field The generated element field.
@@ -171,14 +193,15 @@ function getLiteralTypeName(value: ZodLiteral): string {
  * @returns The repeated field definition.
  */
 function toRepeatedField(field: ProtobufField, key: string): ProtobufField {
-	const repeatedField: ProtobufField = {
+	if (field.oneofMembers !== undefined) {
+		// proto3 has no repeated oneof; a flattened union member would silently
+		// lose the outer `repeated`, changing the described data shape.
+		throw new UnsupportedTypeException('repeated oneof')
+	}
+	return {
 		types: ['repeated', ...field.types],
 		name: key
 	}
-	if (field.oneofMembers) {
-		repeatedField.oneofMembers = field.oneofMembers
-	}
-	return repeatedField
 }
 
 /**
@@ -205,11 +228,11 @@ function toMapField(
 	labelPrefix: 'map' | 'record'
 ): ProtobufField {
 	const keyField = soleField(
-		traverseKey(`${key}Key`, keyType, false, true, context),
+		traverseKey(`${key}Key`, keyType, true, context),
 		`${key} ${labelPrefix} key`
 	)
 	const valueField = soleField(
-		traverseKey(`${key}Value`, valueType, false, true, context),
+		traverseKey(`${key}Value`, valueType, true, context),
 		`${key} ${labelPrefix} value`
 	)
 
@@ -219,6 +242,33 @@ function toMapField(
 		],
 		name: key
 	}
+}
+
+/**
+ * Unwraps schema layers. Optional/nullable layers are remembered on
+ * `optional`; every other wire-invisible wrapper (pipes, defaults, catches)
+ * makes no further distinction. Repeats until a non-wrapper schema remains.
+ * @param value The schema value to unwrap.
+ * @returns The innermost schema and whether an optional layer was crossed.
+ */
+function unwrap(value: $ZodType): UnwrappedValue {
+	let core = value
+	let optional = false
+	while (
+		core instanceof ZodOptional ||
+		core instanceof ZodNullable ||
+		core instanceof ZodPipe ||
+		core instanceof ZodDefault ||
+		core instanceof ZodCatch
+	) {
+		if (core instanceof ZodOptional || core instanceof ZodNullable) {
+			core = core.unwrap()
+			optional = true
+		} else {
+			core = core instanceof ZodPipe ? core.in : core.unwrap()
+		}
+	}
+	return { core, optional }
 }
 
 /**
@@ -236,13 +286,10 @@ function traverseArray(
 ): ProtobufField[] {
 	const nestedValue =
 		value instanceof ZodArray ? value.element : value.def.valueType
+	const unwrapped = unwrap(nestedValue)
 
-	// Nested array/set: wrap inner array in a message to avoid invalid `repeated repeated`
-	let unwrapped: unknown = nestedValue
-	while (unwrapped instanceof ZodOptional || unwrapped instanceof ZodNullable) {
-		unwrapped = unwrapped.unwrap()
-	}
-	if (unwrapped instanceof ZodArray || unwrapped instanceof ZodSet) {
+	// Nested array/set: wrap inner array in a message to avoid invalid `repeated repeated`.
+	if (unwrapped.core instanceof ZodArray || unwrapped.core instanceof ZodSet) {
 		const singularKey = inflection.singularize(key)
 		let wrapperName = `${context.typePrefix}${toPascalCase(singularKey)}List`
 		// Avoid name collision with existing messages/enums
@@ -256,20 +303,14 @@ function traverseArray(
 			suffix++
 		}
 
-		const innerFields = traverseArray(singularKey, unwrapped, context)
+		const innerFields = traverseArray(singularKey, unwrapped.core, context)
 		context.messages.set(wrapperName, formatFields(innerFields))
 
 		return [{ types: ['repeated', wrapperName], name: key }]
 	}
 
 	const singularKey = inflection.singularize(key)
-	const elementFields = traverseKey(
-		singularKey,
-		nestedValue,
-		false,
-		true,
-		context
-	)
+	const elementFields = traverseKey(singularKey, nestedValue, true, context)
 	return elementFields.map((field) => toRepeatedField(field, key))
 }
 
@@ -277,7 +318,6 @@ function traverseArray(
  * Traverses a key and its schema value to generate Protobuf fields.
  * @param key The key.
  * @param value The schema value.
- * @param isOptional Whether an enclosing optional/nullable made the field optional.
  * @param isInArray Whether the field is inside an array.
  * @param context Shared traversal state.
  * @returns An array of Protobuf field definitions.
@@ -285,42 +325,30 @@ function traverseArray(
 function traverseKey(
 	key: string,
 	value: $ZodType,
-	isOptional: boolean,
 	isInArray: boolean,
 	context: Context
 ): ProtobufField[] {
-	// Peels off wrappers that do not change the wire representation.
-	if (value instanceof ZodOptional || value instanceof ZodNullable) {
-		return traverseKey(key, value.unwrap(), true, isInArray, context)
-	}
-	if (
-		value instanceof ZodPipe ||
-		value instanceof ZodDefault ||
-		value instanceof ZodCatch
-	) {
-		const inner = value instanceof ZodPipe ? value.in : value.unwrap()
-		return traverseKey(key, inner, isOptional, isInArray, context)
+	const { core, optional } = unwrap(value)
+
+	if (core instanceof ZodArray || core instanceof ZodSet) {
+		return traverseArray(key, core, context)
 	}
 
-	if (value instanceof ZodArray || value instanceof ZodSet) {
-		return traverseArray(key, value, context)
-	}
-
-	if (value instanceof ZodMap) {
+	if (core instanceof ZodMap) {
 		return [
-			toMapField(context, key, value.def.keyType, value.def.valueType, 'map')
+			toMapField(context, key, core.def.keyType, core.def.valueType, 'map')
 		]
 	}
 
-	if (value instanceof ZodRecord) {
-		return [toMapField(context, key, value.keyType, value.valueType, 'record')]
+	if (core instanceof ZodRecord) {
+		return [toMapField(context, key, core.keyType, core.valueType, 'record')]
 	}
 
-	if (value instanceof ZodUnion || value instanceof ZodDiscriminatedUnion) {
+	if (core instanceof ZodUnion || core instanceof ZodDiscriminatedUnion) {
 		const members: ProtobufField[] = []
 		const usedSuffixes = new Set<string>()
 
-		for (const option of value.options) {
+		for (const option of core.options) {
 			let suffix = getOneofTypeSuffix(option)
 			// Deduplicate suffixes
 			if (usedSuffixes.has(suffix)) {
@@ -333,39 +361,27 @@ function traverseKey(
 			usedSuffixes.add(suffix)
 
 			const memberKey = `${key}_${suffix}`
-			const memberFields = traverseKey(memberKey, option, false, true, context)
+			const memberFields = traverseKey(memberKey, option, true, context)
 			members.push(...memberFields)
 		}
 
 		return [{ types: [], name: key, oneofMembers: members }]
 	}
 
-	const optional = isOptional && !isInArray ? ['optional'] : []
+	const optionalLabel = optional && !isInArray ? ['optional'] : []
 
-	if (value instanceof ZodObject) {
+	if (core instanceof ZodObject) {
 		const messageName = `${context.typePrefix}${toPascalCase(key)}`
-		context.messages.set(messageName, traverseSchema(value, context))
-		return [{ types: [...optional, messageName], name: key }]
+		context.messages.set(messageName, traverseSchema(core, context))
+		return [{ types: [...optionalLabel, messageName], name: key }]
 	}
 
-	if (value instanceof ZodString) {
-		return [{ types: [...optional, 'string'], name: key }]
-	}
-
-	if (value instanceof ZodNumber) {
-		return [{ types: [...optional, getNumberTypeName(value)], name: key }]
-	}
-
-	if (value instanceof ZodBoolean) {
-		return [{ types: [...optional, 'bool'], name: key }]
-	}
-
-	if (value instanceof ZodEnum) {
-		const baseName = toPascalCase(value.meta()?.id ?? key)
+	if (core instanceof ZodEnum) {
+		const baseName = toPascalCase(core.meta()?.id ?? key)
 		const enumName = `${context.typePrefix}${baseName}`
 		const prefix = toScreamingSnakeCase(enumName)
 		const unspecified = `    ${prefix}_UNSPECIFIED = 0;`
-		const enumMembers = value.options
+		const enumMembers = core.options
 			.map(
 				(option, index) =>
 					`    ${prefix}_${String(option).toUpperCase()} = ${index + 1};`
@@ -374,37 +390,34 @@ function traverseKey(
 		context.enums.set(enumName, [
 			`enum ${enumName} {\n${unspecified}\n${enumMembers}\n}`
 		])
-		return [{ types: [...optional, enumName], name: key }]
+		return [{ types: [...optionalLabel, enumName], name: key }]
 	}
 
-	if (value instanceof ZodLiteral) {
-		return [{ types: [...optional, getLiteralTypeName(value)], name: key }]
-	}
-
-	if (value instanceof ZodDate) {
+	if (core instanceof ZodDate) {
 		if (context.useGoogleTimestamp) {
 			context.hasTimestamp = true
-			return [{ types: [...optional, 'google.protobuf.Timestamp'], name: key }]
+			return [
+				{ types: [...optionalLabel, 'google.protobuf.Timestamp'], name: key }
+			]
 		}
-		return [{ types: [...optional, 'string'], name: key }]
+		return [{ types: [...optionalLabel, 'string'], name: key }]
 	}
 
-	if (value instanceof ZodBigInt) {
-		return [{ types: [...optional, 'int64'], name: key }]
-	}
-
-	if (value instanceof ZodTuple) {
-		const tupleFields: ProtobufField[] = value.def.items.flatMap(
-			(item, index) =>
-				traverseKey(`${key}_${index}`, item, false, isInArray, context)
+	if (core instanceof ZodTuple) {
+		const tupleFields: ProtobufField[] = core.def.items.flatMap((item, index) =>
+			traverseKey(`${key}_${index}`, item, isInArray, context)
 		)
 
 		const tupleMessageName = `${context.typePrefix}${toPascalCase(key)}`
 		context.messages.set(tupleMessageName, formatFields(tupleFields))
-		return [{ types: [...optional, tupleMessageName], name: key }]
+		return [{ types: [...optionalLabel, tupleMessageName], name: key }]
 	}
 
-	throw new UnsupportedTypeException(value.constructor.name)
+	const scalarType = getScalarTypeName(core)
+	if (scalarType === undefined) {
+		throw new UnsupportedTypeException(core.constructor.name)
+	}
+	return [{ types: [...optionalLabel, scalarType], name: key }]
 }
 
 /**
@@ -419,7 +432,7 @@ function traverseSchema(schema: $ZodType, context: Context): string[] {
 	}
 
 	const fields = Object.entries(schema.shape).flatMap(([key, value]) =>
-		traverseKey(key, value, false, false, context)
+		traverseKey(key, value, false, context)
 	)
 
 	return formatFields(fields)

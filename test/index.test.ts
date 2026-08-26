@@ -1,6 +1,39 @@
 import { describe, expect, it } from 'bun:test'
 import { z } from 'zod'
-import { zodToProtobuf } from '../src'
+import {
+	UnsupportedTypeException,
+	type ZodToProtobufOptions,
+	zodToProtobuf
+} from '../src'
+
+/**
+ * Builds a complete proto3 document the way zodToProtobuf assembles one, so
+ * individual tests only spell out the part they actually assert on.
+ */
+function protoDoc(
+	expectedBody: string,
+	options?: ZodToProtobufOptions
+): string {
+	const imports =
+		options?.useGoogleTimestamp === true
+			? '\nimport "google/protobuf/timestamp.proto";\n'
+			: ''
+
+	return `
+syntax = "proto3";
+package ${options?.packageName ?? 'default'};
+${imports}
+${expectedBody.trim()}
+`.trim()
+}
+
+function expectProto(
+	schema: Parameters<typeof zodToProtobuf>[0],
+	expectedBody: string,
+	options?: ZodToProtobufOptions
+): void {
+	expect(zodToProtobuf(schema, options)).toBe(protoDoc(expectedBody, options))
+}
 
 describe('zodToProtobuf', () => {
 	it('should convert a simple Zod object to protobuf', () => {
@@ -9,17 +42,13 @@ describe('zodToProtobuf', () => {
 			age: z.number().int()
 		})
 
-		const expectedProto = `
-syntax = "proto3";
-package default;
-
+		const expectedBody = `
 message Message {
     string name = 1;
     int32 age = 2;
 }`
 
-		const proto = zodToProtobuf(schema)
-		expect(proto).toBe(expectedProto.trim())
+		expectProto(schema, expectedBody)
 	})
 
 	it('should handle booleans', () => {
@@ -27,16 +56,12 @@ message Message {
 			isActive: z.boolean()
 		})
 
-		const expectedProto = `
-syntax = "proto3";
-package default;
-
+		const expectedBody = `
 message Message {
     bool isActive = 1;
 }`
 
-		const proto = zodToProtobuf(schema)
-		expect(proto).toBe(expectedProto.trim())
+		expectProto(schema, expectedBody)
 	})
 
 	it('should handle arrays', () => {
@@ -44,16 +69,12 @@ message Message {
 			tags: z.array(z.string())
 		})
 
-		const expectedProto = `
-syntax = "proto3";
-package default;
-
+		const expectedBody = `
 message Message {
     repeated string tags = 1;
 }`
 
-		const proto = zodToProtobuf(schema)
-		expect(proto).toBe(expectedProto.trim())
+		expectProto(schema, expectedBody)
 	})
 
 	it('should handle nested Zod objects', () => {
@@ -64,10 +85,7 @@ message Message {
 			})
 		})
 
-		const expectedProto = `
-syntax = "proto3";
-package default;
-
+		const expectedBody = `
 message User {
     string name = 1;
     int32 age = 2;
@@ -77,8 +95,7 @@ message Message {
     User user = 1;
 }`
 
-		const proto = zodToProtobuf(schema)
-		expect(proto).toBe(expectedProto.trim())
+		expectProto(schema, expectedBody)
 	})
 
 	it('should handle nested arrays by wrapping in a message', () => {
@@ -86,10 +103,7 @@ message Message {
 			matrix: z.array(z.array(z.number().int()))
 		})
 
-		const expectedProto = `
-syntax = "proto3";
-package default;
-
+		const expectedBody = `
 message MatrixList {
     repeated int32 matrix = 1;
 }
@@ -98,8 +112,7 @@ message Message {
     repeated MatrixList matrix = 1;
 }`
 
-		const proto = zodToProtobuf(schema)
-		expect(proto).toBe(expectedProto.trim())
+		expectProto(schema, expectedBody)
 	})
 
 	it('should handle enums with UNSPECIFIED and prefixed values', () => {
@@ -107,10 +120,7 @@ message Message {
 			status: z.enum(['ACTIVE', 'INACTIVE'])
 		})
 
-		const expectedProto = `
-syntax = "proto3";
-package default;
-
+		const expectedBody = `
 enum Status {
     STATUS_UNSPECIFIED = 0;
     STATUS_ACTIVE = 1;
@@ -121,8 +131,7 @@ message Message {
     Status status = 1;
 }`
 
-		const proto = zodToProtobuf(schema)
-		expect(proto).toBe(expectedProto.trim())
+		expectProto(schema, expectedBody)
 	})
 
 	it('should handle optional fields', () => {
@@ -139,10 +148,7 @@ message Message {
 			stickers: z.array(z.string().nullish())
 		})
 
-		const expectedProto = `
-syntax = "proto3";
-package default;
-
+		const expectedBody = `
 message Address {
     optional string street = 1;
 }
@@ -156,8 +162,7 @@ message Message {
     repeated string stickers = 6;
 }`
 
-		const proto = zodToProtobuf(schema)
-		expect(proto).toBe(expectedProto.trim())
+		expectProto(schema, expectedBody)
 	})
 
 	it('should handle nullable fields', () => {
@@ -166,17 +171,13 @@ message Message {
 			age: z.number().int().nullish()
 		})
 
-		const expectedProto = `
-syntax = "proto3";
-package default;
-
+		const expectedBody = `
 message Message {
     optional string name = 1;
     optional int32 age = 2;
 }`
 
-		const proto = zodToProtobuf(schema)
-		expect(proto).toBe(expectedProto.trim())
+		expectProto(schema, expectedBody)
 	})
 
 	it('should handle dates', () => {
@@ -185,17 +186,13 @@ message Message {
 			appointment: z.date()
 		})
 
-		const expectedProto = `
-syntax = "proto3";
-package default;
-
+		const expectedBody = `
 message Message {
     string birthdate = 1;
     string appointment = 2;
 }`
 
-		const proto = zodToProtobuf(schema)
-		expect(proto).toBe(expectedProto.trim())
+		expectProto(schema, expectedBody)
 	})
 
 	it('should handle double types', () => {
@@ -203,16 +200,12 @@ message Message {
 			measurement: z.number()
 		})
 
-		const expectedProto = `
-syntax = "proto3";
-package default;
-
+		const expectedBody = `
 message Message {
     double measurement = 1;
 }`
 
-		const proto = zodToProtobuf(schema)
-		expect(proto).toBe(expectedProto.trim())
+		expectProto(schema, expectedBody)
 	})
 
 	it('should handle int types', () => {
@@ -220,16 +213,12 @@ message Message {
 			counter: z.number().int()
 		})
 
-		const expectedProto = `
-syntax = "proto3";
-package default;
-
+		const expectedBody = `
 message Message {
     int32 counter = 1;
 }`
 
-		const proto = zodToProtobuf(schema)
-		expect(proto).toBe(expectedProto.trim())
+		expectProto(schema, expectedBody)
 	})
 
 	it('should handle nested objects with arrays and enums', () => {
@@ -246,10 +235,7 @@ message Message {
 			})
 		})
 
-		const expectedProto = `
-syntax = "proto3";
-package default;
-
+		const expectedBody = `
 enum Status {
     STATUS_UNSPECIFIED = 0;
     STATUS_ACTIVE = 1;
@@ -271,8 +257,7 @@ message Message {
     User user = 1;
 }`
 
-		const proto = zodToProtobuf(schema)
-		expect(proto).toBe(expectedProto.trim())
+		expectProto(schema, expectedBody)
 	})
 
 	it('should throw exception on unsupported ZodAny type', () => {
@@ -304,10 +289,12 @@ message Message {
 			})
 		})
 
-		const expectedProto = `
-syntax = "proto3";
-package mypackage;
+		const options = {
+			packageName: 'mypackage',
+			rootMessageName: 'MyMessage'
+		} satisfies ZodToProtobufOptions
 
+		const expectedBody = `
 message Address {
     string street = 1;
 }
@@ -318,11 +305,7 @@ message MyMessage {
     Address address = 3;
 }`
 
-		const proto = zodToProtobuf(schema, {
-			packageName: 'mypackage',
-			rootMessageName: 'MyMessage'
-		})
-		expect(proto).toBe(expectedProto.trim())
+		expectProto(schema, expectedBody, options)
 	})
 
 	it('should handle complex nested objects and arrays', () => {
@@ -338,10 +321,7 @@ message MyMessage {
 			})
 		})
 
-		const expectedProto = `
-syntax = "proto3";
-package default;
-
+		const expectedBody = `
 message Tag {
     string label = 1;
     int32 value = 2;
@@ -356,8 +336,7 @@ message Message {
     User user = 1;
 }`
 
-		const proto = zodToProtobuf(schema)
-		expect(proto).toBe(expectedProto.trim())
+		expectProto(schema, expectedBody)
 	})
 
 	it('should generate Protobuf schema with type name prefix, including nested objects', () => {
@@ -374,16 +353,13 @@ message Message {
 			})
 		})
 
-		const protoDefinition = zodToProtobuf(schema, {
+		const options = {
 			packageName: 'example',
 			rootMessageName: 'ExampleMessage',
 			typePrefix: 'Prefix_'
-		})
+		} satisfies ZodToProtobufOptions
 
-		const expectedProto = `
-syntax = "proto3";
-package example;
-
+		const expectedBody = `
 enum Prefix_Role {
     PREFIX_ROLE_UNSPECIFIED = 0;
     PREFIX_ROLE_ADMIN = 1;
@@ -404,9 +380,9 @@ message Prefix_ExampleMessage {
     string createdAt = 4;
     repeated Prefix_Role roles = 5;
     Prefix_Address address = 6;
-}`.trim()
+}`
 
-		expect(protoDefinition).toBe(expectedProto)
+		expectProto(schema, expectedBody, options)
 	})
 
 	it('should handle sets', () => {
@@ -414,16 +390,12 @@ message Prefix_ExampleMessage {
 			uniqueTags: z.set(z.string())
 		})
 
-		const expectedProto = `
-syntax = "proto3";
-package default;
-
+		const expectedBody = `
 message Message {
     repeated string uniqueTags = 1;
 }`
 
-		const proto = zodToProtobuf(schema)
-		expect(proto).toBe(expectedProto.trim())
+		expectProto(schema, expectedBody)
 	})
 
 	it('should handle tuples', () => {
@@ -431,10 +403,7 @@ message Message {
 			coordinates: z.tuple([z.number(), z.number()])
 		})
 
-		const expectedProto = `
-syntax = "proto3";
-package default;
-
+		const expectedBody = `
 message Coordinates {
     double coordinates_0 = 1;
     double coordinates_1 = 2;
@@ -444,8 +413,7 @@ message Message {
     Coordinates coordinates = 1;
 }`
 
-		const proto = zodToProtobuf(schema)
-		expect(proto).toBe(expectedProto.trim())
+		expectProto(schema, expectedBody)
 	})
 
 	it('should handle tuples with 3 elements', () => {
@@ -457,10 +425,7 @@ message Message {
 			])
 		})
 
-		const expectedProto = `
-syntax = "proto3";
-package default;
-
+		const expectedBody = `
 message Coordinates_2 {
     string a = 1;
 }
@@ -475,8 +440,7 @@ message Message {
     Coordinates coordinates = 1;
 }`
 
-		const proto = zodToProtobuf(schema)
-		expect(proto).toBe(expectedProto.trim())
+		expectProto(schema, expectedBody)
 	})
 
 	it('should handle map with string key and value', () => {
@@ -484,16 +448,12 @@ message Message {
 			metadata: z.map(z.string(), z.string())
 		})
 
-		const expectedProto = `
-syntax = "proto3";
-package default;
-
+		const expectedBody = `
 message Message {
     map<string, string> metadata = 1;
 }`
 
-		const proto = zodToProtobuf(schema)
-		expect(proto).toBe(expectedProto.trim())
+		expectProto(schema, expectedBody)
 	})
 
 	it('should handle map with number key', () => {
@@ -501,16 +461,12 @@ message Message {
 			metadata: z.map(z.number().int(), z.string())
 		})
 
-		const expectedProto = `
-syntax = "proto3";
-package default;
-
+		const expectedBody = `
 message Message {
     map<int32, string> metadata = 1;
 }`
 
-		const proto = zodToProtobuf(schema)
-		expect(proto).toBe(expectedProto.trim())
+		expectProto(schema, expectedBody)
 	})
 
 	it('should handle big integers', () => {
@@ -518,16 +474,12 @@ message Message {
 			largeNumber: z.bigint()
 		})
 
-		const expectedProto = `
-syntax = "proto3";
-package default;
-
+		const expectedBody = `
 message Message {
     int64 largeNumber = 1;
 }`
 
-		const proto = zodToProtobuf(schema)
-		expect(proto).toBe(expectedProto.trim())
+		expectProto(schema, expectedBody)
 	})
 
 	it('should handle map with object value', () => {
@@ -541,10 +493,7 @@ message Message {
 			)
 		})
 
-		const expectedProto = `
-syntax = "proto3";
-package default;
-
+		const expectedBody = `
 message MetadataValue {
     string value = 1;
     string timestamp = 2;
@@ -554,8 +503,7 @@ message Message {
     map<string, MetadataValue> metadata = 1;
 }`
 
-		const proto = zodToProtobuf(schema)
-		expect(proto).toBe(expectedProto.trim())
+		expectProto(schema, expectedBody)
 	})
 
 	it('should handle 2D set with object by wrapping in message', () => {
@@ -570,10 +518,7 @@ message Message {
 			)
 		})
 
-		const expectedProto = `
-syntax = "proto3";
-package default;
-
+		const expectedBody = `
 message Matrix {
     string value = 1;
     int32 count = 2;
@@ -587,8 +532,7 @@ message Message {
     repeated MatrixList matrix = 1;
 }`
 
-		const proto = zodToProtobuf(schema)
-		expect(proto).toBe(expectedProto.trim())
+		expectProto(schema, expectedBody)
 	})
 
 	it('should handle object arrays', () => {
@@ -602,10 +546,7 @@ message Message {
 			)
 		})
 
-		const expectedProto = `
-syntax = "proto3";
-package default;
-
+		const expectedBody = `
 message User {
     int32 id = 1;
     string name = 2;
@@ -614,10 +555,9 @@ message User {
 
 message Message {
     repeated User users = 1;
-}`.trim()
+}`
 
-		const proto = zodToProtobuf(schema)
-		expect(proto).toBe(expectedProto)
+		expectProto(schema, expectedBody)
 	})
 
 	it('should handle multiple enums with different meta ids', () => {
@@ -632,10 +572,7 @@ message Message {
 			})
 		})
 
-		const expectedProto = `
-syntax = "proto3";
-package default;
-
+		const expectedBody = `
 enum ColorType {
     COLOR_TYPE_UNSPECIFIED = 0;
     COLOR_TYPE_RED = 1;
@@ -659,10 +596,9 @@ message Size {
 message Message {
     Color color = 1;
     Size size = 2;
-}`.trim()
+}`
 
-		const proto = zodToProtobuf(schema)
-		expect(proto).toBe(expectedProto)
+		expectProto(schema, expectedBody)
 	})
 
 	it('should throw on enum/message name collision', () => {
@@ -683,16 +619,12 @@ message Message {
 			name: z.string().transform((val) => val.toUpperCase())
 		})
 
-		const expectedProto = `
-syntax = "proto3";
-package default;
-
+		const expectedBody = `
 message Message {
     string name = 1;
 }`
 
-		const proto = zodToProtobuf(schema)
-		expect(proto).toBe(expectedProto.trim())
+		expectProto(schema, expectedBody)
 	})
 
 	it('should handle chained transforms', () => {
@@ -703,16 +635,12 @@ message Message {
 				.transform((val) => val.toUpperCase())
 		})
 
-		const expectedProto = `
-syntax = "proto3";
-package default;
-
+		const expectedBody = `
 message Message {
     string name = 1;
 }`
 
-		const proto = zodToProtobuf(schema)
-		expect(proto).toBe(expectedProto.trim())
+		expectProto(schema, expectedBody)
 	})
 
 	it('should handle explicit pipe', () => {
@@ -720,16 +648,12 @@ message Message {
 			name: z.string().pipe(z.number())
 		})
 
-		const expectedProto = `
-syntax = "proto3";
-package default;
-
+		const expectedBody = `
 message Message {
     string name = 1;
 }`
 
-		const proto = zodToProtobuf(schema)
-		expect(proto).toBe(expectedProto.trim())
+		expectProto(schema, expectedBody)
 	})
 
 	it('should handle default', () => {
@@ -737,16 +661,12 @@ message Message {
 			name: z.string().default('hello')
 		})
 
-		const expectedProto = `
-syntax = "proto3";
-package default;
-
+		const expectedBody = `
 message Message {
     string name = 1;
 }`
 
-		const proto = zodToProtobuf(schema)
-		expect(proto).toBe(expectedProto.trim())
+		expectProto(schema, expectedBody)
 	})
 
 	it('should handle optional with default', () => {
@@ -754,16 +674,12 @@ message Message {
 			name: z.string().optional().default('hello')
 		})
 
-		const expectedProto = `
-syntax = "proto3";
-package default;
-
+		const expectedBody = `
 message Message {
     optional string name = 1;
 }`
 
-		const proto = zodToProtobuf(schema)
-		expect(proto).toBe(expectedProto.trim())
+		expectProto(schema, expectedBody)
 	})
 
 	it('should handle catch', () => {
@@ -771,16 +687,12 @@ message Message {
 			name: z.string().catch('fallback')
 		})
 
-		const expectedProto = `
-syntax = "proto3";
-package default;
-
+		const expectedBody = `
 message Message {
     string name = 1;
 }`
 
-		const proto = zodToProtobuf(schema)
-		expect(proto).toBe(expectedProto.trim())
+		expectProto(schema, expectedBody)
 	})
 
 	// --- New feature tests ---
@@ -790,10 +702,7 @@ message Message {
 			value: z.union([z.string(), z.number().int()])
 		})
 
-		const expectedProto = `
-syntax = "proto3";
-package default;
-
+		const expectedBody = `
 message Message {
     oneof value {
         string value_string = 1;
@@ -801,8 +710,7 @@ message Message {
     }
 }`
 
-		const proto = zodToProtobuf(schema)
-		expect(proto).toBe(expectedProto.trim())
+		expectProto(schema, expectedBody)
 	})
 
 	it('should handle z.union with objects as oneof', () => {
@@ -813,10 +721,7 @@ message Message {
 			])
 		})
 
-		const expectedProto = `
-syntax = "proto3";
-package default;
-
+		const expectedBody = `
 message Result_message {
     string data = 1;
 }
@@ -832,8 +737,7 @@ message Message {
     }
 }`
 
-		const proto = zodToProtobuf(schema)
-		expect(proto).toBe(expectedProto.trim())
+		expectProto(schema, expectedBody)
 	})
 
 	it('should handle z.discriminatedUnion as oneof', () => {
@@ -844,10 +748,7 @@ message Message {
 			])
 		})
 
-		const expectedProto = `
-syntax = "proto3";
-package default;
-
+		const expectedBody = `
 message Shape_message {
     string type = 1;
     double radius = 2;
@@ -865,8 +766,7 @@ message Message {
     }
 }`
 
-		const proto = zodToProtobuf(schema)
-		expect(proto).toBe(expectedProto.trim())
+		expectProto(schema, expectedBody)
 	})
 
 	it('should handle z.record with string keys', () => {
@@ -874,16 +774,12 @@ message Message {
 			metadata: z.record(z.string(), z.number().int())
 		})
 
-		const expectedProto = `
-syntax = "proto3";
-package default;
-
+		const expectedBody = `
 message Message {
     map<string, int32> metadata = 1;
 }`
 
-		const proto = zodToProtobuf(schema)
-		expect(proto).toBe(expectedProto.trim())
+		expectProto(schema, expectedBody)
 	})
 
 	it('should handle z.record with object values', () => {
@@ -897,10 +793,7 @@ message Message {
 			)
 		})
 
-		const expectedProto = `
-syntax = "proto3";
-package default;
-
+		const expectedBody = `
 message UsersValue {
     string name = 1;
     int32 age = 2;
@@ -910,8 +803,7 @@ message Message {
     map<string, UsersValue> users = 1;
 }`
 
-		const proto = zodToProtobuf(schema)
-		expect(proto).toBe(expectedProto.trim())
+		expectProto(schema, expectedBody)
 	})
 
 	it('should handle z.literal string', () => {
@@ -919,16 +811,12 @@ message Message {
 			type: z.literal('hello')
 		})
 
-		const expectedProto = `
-syntax = "proto3";
-package default;
-
+		const expectedBody = `
 message Message {
     string type = 1;
 }`
 
-		const proto = zodToProtobuf(schema)
-		expect(proto).toBe(expectedProto.trim())
+		expectProto(schema, expectedBody)
 	})
 
 	it('should handle z.literal number', () => {
@@ -936,16 +824,12 @@ message Message {
 			code: z.literal(42)
 		})
 
-		const expectedProto = `
-syntax = "proto3";
-package default;
-
+		const expectedBody = `
 message Message {
     int32 code = 1;
 }`
 
-		const proto = zodToProtobuf(schema)
-		expect(proto).toBe(expectedProto.trim())
+		expectProto(schema, expectedBody)
 	})
 
 	it('should handle z.literal boolean', () => {
@@ -953,16 +837,12 @@ message Message {
 			flag: z.literal(true)
 		})
 
-		const expectedProto = `
-syntax = "proto3";
-package default;
-
+		const expectedBody = `
 message Message {
     bool flag = 1;
 }`
 
-		const proto = zodToProtobuf(schema)
-		expect(proto).toBe(expectedProto.trim())
+		expectProto(schema, expectedBody)
 	})
 
 	it('should handle z.date with useGoogleTimestamp option', () => {
@@ -971,19 +851,13 @@ message Message {
 			updatedAt: z.date()
 		})
 
-		const expectedProto = `
-syntax = "proto3";
-package default;
-
-import "google/protobuf/timestamp.proto";
-
+		const expectedBody = `
 message Message {
     google.protobuf.Timestamp createdAt = 1;
     google.protobuf.Timestamp updatedAt = 2;
 }`
 
-		const proto = zodToProtobuf(schema, { useGoogleTimestamp: true })
-		expect(proto).toBe(expectedProto.trim())
+		expectProto(schema, expectedBody, { useGoogleTimestamp: true })
 	})
 
 	it('should not include timestamp import when useGoogleTimestamp is false', () => {
@@ -994,5 +868,39 @@ message Message {
 		const proto = zodToProtobuf(schema)
 		expect(proto).not.toContain('import')
 		expect(proto).toContain('string createdAt')
+	})
+
+	it('should throw on arrays of unions instead of silently dropping repeated', () => {
+		const schema = z.object({
+			values: z.array(z.union([z.string(), z.number().int()])),
+			tags: z.set(z.union([z.string(), z.number()]))
+		})
+
+		// proto3 has no repeated oneof; emitting a plain oneof would silently
+		// change the shape of the data being described.
+		expect(() => zodToProtobuf(schema)).toThrowError(UnsupportedTypeException)
+	})
+
+	it('should detect nested arrays hidden behind wrappers', () => {
+		const schema = z.object({
+			piped: z.array(z.array(z.string()).pipe(z.array(z.string()))),
+			defaulted: z.array(z.array(z.string()).default([]))
+		})
+
+		const expectedBody = `
+message PipedList {
+    repeated string piped = 1;
+}
+
+message DefaultedList {
+    repeated string defaulted = 1;
+}
+
+message Message {
+    repeated PipedList piped = 1;
+    repeated DefaultedList defaulted = 2;
+}`
+
+		expectProto(schema, expectedBody)
 	})
 })
