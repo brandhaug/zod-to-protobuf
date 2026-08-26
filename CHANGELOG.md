@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.10.2](https://github.com/brandhaug/zod-to-protobuf/compare/zod-to-protobuf-v2.10.1...zod-to-protobuf-v2.10.2) (2026-08-26)
+
+
+### Code Refactoring
+
+* apply full-codebase quality review ([#28](https://github.com/brandhaug/zod-to-protobuf/issues/28)) ([85086d1](https://github.com/brandhaug/zod-to-protobuf/commit/85086d1a36ca5515c5ede74d7081d98f5ff9e6f6))
+
 ## [2.10.1](https://github.com/brandhaug/zod-to-protobuf/compare/zod-to-protobuf-v2.10.0...zod-to-protobuf-v2.10.1) (2026-08-26)
 
 
