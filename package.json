@@ -19,7 +19,6 @@
 		"type": "git",
 		"url": "https://github.com/brandhaug/zod-to-protobuf.git"
 	},
-	"workspaces": [],
 	"files": [
 		"dist/"
 	],
