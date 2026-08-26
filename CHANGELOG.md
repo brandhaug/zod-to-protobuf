@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.10.1](https://github.com/brandhaug/zod-to-protobuf/compare/zod-to-protobuf-v2.10.0...zod-to-protobuf-v2.10.1) (2026-08-26)
+
+
+### Documentation
+
+* sync AGENTS.md with recent changes ([#27](https://github.com/brandhaug/zod-to-protobuf/issues/27)) ([a5d9daa](https://github.com/brandhaug/zod-to-protobuf/commit/a5d9daad4ff75c6d6406cd29216cfc4d81415879))
+* sync README with recent changes and trim ([#25](https://github.com/brandhaug/zod-to-protobuf/issues/25)) ([baa3995](https://github.com/brandhaug/zod-to-protobuf/commit/baa3995270c281856e000290542060b64d421686))
+
 ## [2.10.0](https://github.com/brandhaug/zod-to-protobuf/compare/zod-to-protobuf-v2.9.1...zod-to-protobuf-v2.10.0) (2026-08-24)
 
 
