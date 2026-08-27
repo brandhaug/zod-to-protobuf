@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.10.3](https://github.com/brandhaug/zod-to-protobuf/compare/zod-to-protobuf-v2.10.2...zod-to-protobuf-v2.10.3) (2026-08-27)
+
+
+### Miscellaneous
+
+* align tooling with canonical setup ([#30](https://github.com/brandhaug/zod-to-protobuf/issues/30)) ([6df687f](https://github.com/brandhaug/zod-to-protobuf/commit/6df687fefd503613e40d6080b3c5afba70b63a33))
+* **deps:** bump oxfmt from 0.64.0 to 0.65.0 ([#31](https://github.com/brandhaug/zod-to-protobuf/issues/31)) ([b174670](https://github.com/brandhaug/zod-to-protobuf/commit/b174670cd57775336ad79de8040ded5da9d2df07))
+
 ## [2.10.2](https://github.com/brandhaug/zod-to-protobuf/compare/zod-to-protobuf-v2.10.1...zod-to-protobuf-v2.10.2) (2026-08-26)
 
 
