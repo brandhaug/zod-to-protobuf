@@ -11,6 +11,8 @@
 		}
 	],
 	"options": {
+		// Makes bare `oxlint` type-aware too, matching the --type-aware flag in scripts.
+		"typeAware": true,
 		// A disable directive that suppresses nothing is a lie about the code it sits on.
 		// Denying them keeps stale suppressions from accumulating now that oxlint owns the
 		// rule set. When a rule here is turned off or renamed, its directives have to go in

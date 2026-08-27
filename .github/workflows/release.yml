@@ -4,6 +4,12 @@ on:
   push:
     branches:
       - master
+  workflow_dispatch:
+    inputs:
+      force-publish:
+        description: Publish even when release-please did not cut a new release
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -21,11 +27,12 @@ jobs:
         id: release
         uses: googleapis/release-please-action@v4
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          # CI_PAT is needed because GITHUB_TOKEN cannot approve PRs.
+          token: ${{ secrets.CI_PAT }}
 
   publish:
     needs: release-please
-    if: needs.release-please.outputs.release_created == 'true'
+    if: needs.release-please.outputs.release_created == 'true' || inputs.force-publish == 'true'
     runs-on: ubuntu-latest
     environment: release
     steps:
@@ -49,7 +56,6 @@ jobs:
       - name: Build project
         run: npm run build
 
+      # npm >= 11.5.1 supports OIDC trusted publishing; id-token: write is required.
       - name: Publish to npm
         run: npm publish --provenance --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
