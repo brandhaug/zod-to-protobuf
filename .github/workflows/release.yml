@@ -5,6 +5,11 @@ on:
     branches:
       - master
   workflow_dispatch:
+    inputs:
+      force-publish:
+        description: Publish even when release-please did not cut a new release
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -27,7 +32,7 @@ jobs:
 
   publish:
     needs: release-please
-    if: needs.release-please.outputs.release_created == 'true' || github.event_name == 'workflow_dispatch'
+    if: needs.release-please.outputs.release_created == 'true' || inputs.force-publish == 'true'
     runs-on: ubuntu-latest
     environment: release
     steps:
