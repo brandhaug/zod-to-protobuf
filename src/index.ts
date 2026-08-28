@@ -42,15 +42,15 @@ class UnsupportedTypeException extends Error {
 }
 
 type ProtobufField = {
-	types: string[]
+	types: Array<string>
 	name: string
-	oneofMembers?: ProtobufField[]
+	oneofMembers?: Array<ProtobufField>
 }
 
 /** Shared state threaded through the whole conversion traversal. */
 type Context = {
-	messages: Map<string, string[]>
-	enums: Map<string, string[]>
+	messages: Map<string, Array<string>>
+	enums: Map<string, Array<string>>
 	typePrefix: string
 	useGoogleTimestamp: boolean
 	hasTimestamp: boolean
@@ -105,8 +105,8 @@ function renderFieldType(field: ProtobufField): string {
  * @param fields The ProtobufField array.
  * @returns An array of formatted field strings.
  */
-function formatFields(fields: ProtobufField[]): string[] {
-	const lines: string[] = []
+function formatFields(fields: Array<ProtobufField>): Array<string> {
+	const lines: Array<string> = []
 	let fieldNum = 1
 	for (const field of fields) {
 		if (field.oneofMembers) {
@@ -132,15 +132,33 @@ function formatFields(fields: ProtobufField[]): string[] {
  * @returns A short string suffix.
  */
 function getOneofTypeSuffix(value: $ZodType): string {
-	if (value instanceof ZodString) return 'string'
-	if (value instanceof ZodNumber) return getNumberTypeName(value)
-	if (value instanceof ZodBoolean) return 'bool'
-	if (value instanceof ZodBigInt) return 'int64'
-	if (value instanceof ZodDate) return 'date'
-	if (value instanceof ZodObject) return 'message'
-	if (value instanceof ZodArray || value instanceof ZodSet) return 'list'
-	if (value instanceof ZodEnum) return 'enum'
-	if (value instanceof ZodLiteral) return 'literal'
+	if (value instanceof ZodString) {
+		return 'string'
+	}
+	if (value instanceof ZodNumber) {
+		return getNumberTypeName(value)
+	}
+	if (value instanceof ZodBoolean) {
+		return 'bool'
+	}
+	if (value instanceof ZodBigInt) {
+		return 'int64'
+	}
+	if (value instanceof ZodDate) {
+		return 'date'
+	}
+	if (value instanceof ZodObject) {
+		return 'message'
+	}
+	if (value instanceof ZodArray || value instanceof ZodSet) {
+		return 'list'
+	}
+	if (value instanceof ZodEnum) {
+		return 'enum'
+	}
+	if (value instanceof ZodLiteral) {
+		return 'literal'
+	}
 	return 'value'
 }
 
@@ -160,11 +178,15 @@ function getLiteralTypeName(value: ZodLiteral): string {
 	 * earlier to parse against.
 	 */
 	const first = value.values.values().next().value
-	if (typeof first === 'string') return 'string'
+	if (typeof first === 'string') {
+		return 'string'
+	}
 	if (typeof first === 'number') {
 		return Number.isInteger(first) ? 'int32' : 'double'
 	}
-	if (typeof first === 'boolean') return 'bool'
+	if (typeof first === 'boolean') {
+		return 'bool'
+	}
 	throw new UnsupportedTypeException(`ZodLiteral(${typeof first})`)
 	/* oxlint-enable anti-slop/no-runtime-typeof */
 }
@@ -177,11 +199,21 @@ function getLiteralTypeName(value: ZodLiteral): string {
  * @returns The Protobuf scalar type name, or undefined.
  */
 function getScalarTypeName(value: $ZodType): string | undefined {
-	if (value instanceof ZodString) return 'string'
-	if (value instanceof ZodBoolean) return 'bool'
-	if (value instanceof ZodBigInt) return 'int64'
-	if (value instanceof ZodNumber) return getNumberTypeName(value)
-	if (value instanceof ZodLiteral) return getLiteralTypeName(value)
+	if (value instanceof ZodString) {
+		return 'string'
+	}
+	if (value instanceof ZodBoolean) {
+		return 'bool'
+	}
+	if (value instanceof ZodBigInt) {
+		return 'int64'
+	}
+	if (value instanceof ZodNumber) {
+		return getNumberTypeName(value)
+	}
+	if (value instanceof ZodLiteral) {
+		return getLiteralTypeName(value)
+	}
 	return undefined
 }
 
@@ -208,7 +240,7 @@ function toRepeatedField(field: ProtobufField, key: string): ProtobufField {
  * Asserts a traversal produced exactly one plain field and returns it, so
  * map/record sides can safely be rendered as a scalar map<...> entry.
  */
-function soleField(fields: ProtobufField[], label: string): ProtobufField {
+function soleField(fields: Array<ProtobufField>, label: string): ProtobufField {
 	const [only] = fields
 	if (only === undefined || fields.length !== 1) {
 		throw new UnsupportedTypeException(label)
@@ -283,7 +315,7 @@ function traverseArray(
 	key: string,
 	value: ZodArray | ZodSet,
 	context: Context
-): ProtobufField[] {
+): Array<ProtobufField> {
 	const nestedValue =
 		value instanceof ZodArray ? value.element : value.def.valueType
 	const unwrapped = unwrap(nestedValue)
@@ -327,7 +359,7 @@ function traverseKey(
 	value: $ZodType,
 	isInArray: boolean,
 	context: Context
-): ProtobufField[] {
+): Array<ProtobufField> {
 	const { core, optional } = unwrap(value)
 
 	if (core instanceof ZodArray || core instanceof ZodSet) {
@@ -345,7 +377,7 @@ function traverseKey(
 	}
 
 	if (core instanceof ZodUnion || core instanceof ZodDiscriminatedUnion) {
-		const members: ProtobufField[] = []
+		const members: Array<ProtobufField> = []
 		const usedSuffixes = new Set<string>()
 
 		for (const option of core.options) {
@@ -404,8 +436,8 @@ function traverseKey(
 	}
 
 	if (core instanceof ZodTuple) {
-		const tupleFields: ProtobufField[] = core.def.items.flatMap((item, index) =>
-			traverseKey(`${key}_${index}`, item, isInArray, context)
+		const tupleFields: Array<ProtobufField> = core.def.items.flatMap(
+			(item, index) => traverseKey(`${key}_${index}`, item, isInArray, context)
 		)
 
 		const tupleMessageName = `${context.typePrefix}${toPascalCase(key)}`
@@ -426,7 +458,7 @@ function traverseKey(
  * @param context Shared traversal state.
  * @returns An array of formatted Protobuf field strings.
  */
-function traverseSchema(schema: $ZodType, context: Context): string[] {
+function traverseSchema(schema: $ZodType, context: Context): Array<string> {
 	if (!(schema instanceof ZodObject)) {
 		throw new UnsupportedTypeException(schema.constructor.name)
 	}
@@ -456,8 +488,8 @@ function zodToProtobuf(
 	} = options
 
 	const context: Context = {
-		messages: new Map<string, string[]>(),
-		enums: new Map<string, string[]>(),
+		messages: new Map<string, Array<string>>(),
+		enums: new Map<string, Array<string>>(),
 		typePrefix,
 		useGoogleTimestamp,
 		hasTimestamp: false
