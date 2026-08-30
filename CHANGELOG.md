@@ -1,5 +1,17 @@
 # Changelog
 
+## [2.10.4](https://github.com/brandhaug/zod-to-protobuf/compare/zod-to-protobuf-v2.10.3...zod-to-protobuf-v2.10.4) (2026-08-30)
+
+
+### Miscellaneous
+
+* **deps:** bump @types/node from 26.2.0 to 26.3.0 ([#36](https://github.com/brandhaug/zod-to-protobuf/issues/36)) ([8ef77bd](https://github.com/brandhaug/zod-to-protobuf/commit/8ef77bd107433aea95942af1ca28f863a714fa6a))
+* **deps:** bump @types/node from 26.3.0 to 26.4.0 ([#38](https://github.com/brandhaug/zod-to-protobuf/issues/38)) ([770dee8](https://github.com/brandhaug/zod-to-protobuf/commit/770dee8b3d2ad7729d5acdccbd51631836744e96))
+* **deps:** bump oxlint from 1.79.0 to 1.80.0 ([#32](https://github.com/brandhaug/zod-to-protobuf/issues/32)) ([97088d5](https://github.com/brandhaug/zod-to-protobuf/commit/97088d5edc2b2f984bcdbaee2955a596ad60af0a))
+* **deps:** bump ultracite from 7.10.6 to 7.10.7 ([#39](https://github.com/brandhaug/zod-to-protobuf/issues/39)) ([7134bd4](https://github.com/brandhaug/zod-to-protobuf/commit/7134bd4dafb617bff58a8cec8f1de87c1f5cf457))
+* enable strict oxlint rules and fix violations ([#34](https://github.com/brandhaug/zod-to-protobuf/issues/34)) ([577bec9](https://github.com/brandhaug/zod-to-protobuf/commit/577bec9c77321e4440d154e523f5158766ad6147))
+* remove dead code and unused dependencies surfaced by fallow ([#42](https://github.com/brandhaug/zod-to-protobuf/issues/42)) ([272cd37](https://github.com/brandhaug/zod-to-protobuf/commit/272cd37c7ae5501c8de9c3a74f4e195f33bbd3ff))
+
 ## [2.10.3](https://github.com/brandhaug/zod-to-protobuf/compare/zod-to-protobuf-v2.10.2...zod-to-protobuf-v2.10.3) (2026-08-27)
 
 
