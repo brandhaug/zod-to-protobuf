@@ -1,0 +1,41 @@
+{
+	"$schema": "https://raw.githubusercontent.com/fallow-rs/fallow/main/schema.json",
+	"regression": {
+		"baseline": {
+			"analysisIdentity": {
+				"mode": "syntactic",
+				"semantic_schema_version": 1,
+				"capabilities": [],
+				"project_config_hash": "",
+				"backend_family": "",
+				"completeness": "complete"
+			},
+			"totalIssues": 3,
+			"unusedFiles": 1,
+			"unusedExports": 0,
+			"unusedTypes": 0,
+			"unusedDependencies": 0,
+			"unusedDevDependencies": 1,
+			"unusedOptionalDependencies": 0,
+			"unusedEnumMembers": 0,
+			"unusedClassMembers": 0,
+			"unresolvedImports": 0,
+			"unlistedDependencies": 0,
+			"duplicateExports": 0,
+			"circularDependencies": 0,
+			"reExportCycles": 0,
+			"typeOnlyDependencies": 0,
+			"testOnlyDependencies": 0,
+			"devDependenciesInProduction": 0,
+			"boundaryViolations": 0,
+			"boundaryCoverageViolations": 0,
+			"boundaryCallViolations": 0,
+			"policyViolations": 0
+		}
+	},
+	"rules": {
+		"unused-catalog-entries": "warn",
+		"unused-dependencies": "warn",
+		"unused-files": "warn"
+	}
+}

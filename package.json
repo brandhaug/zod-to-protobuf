@@ -39,7 +39,8 @@
 		"format": "oxfmt --write",
 		"prepare": "git config core.hooksPath .githooks",
 		"test": "bun test",
-		"validate": "npm run lint && npm run test"
+		"dead-code": "fallow dead-code --fail-on-regression",
+		"validate": "npm run lint && npm run test && npm run dead-code"
 	},
 	"dependencies": {
 		"inflection": "3.0.2"
