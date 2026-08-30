@@ -15,6 +15,9 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          # A PAT (not the default GITHUB_TOKEN) so branch updates are
+          # attributed to a real user and CI runs without manual approval.
+          token: ${{ secrets.CI_PAT }}
 
       - uses: brandhaug/catalog-update-action@v1
         with:
