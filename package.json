@@ -1,71 +1,71 @@
 {
-  "name": "zod-to-protobuf",
-  "version": "2.10.3",
-  "description": "A utility to convert Zod schemas to Protocol Buffers definitions.",
-  "keywords": [
-    "conversion",
-    "protobuf",
-    "schema",
-    "typescript",
-    "zod"
-  ],
-  "homepage": "https://github.com/brandhaug/zod-to-protobuf#readme",
-  "bugs": {
-    "url": "https://github.com/brandhaug/zod-to-protobuf/issues"
-  },
-  "license": "MIT",
-  "author": "Martin Brandhaug",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/brandhaug/zod-to-protobuf.git"
-  },
-  "workspaces": [],
-  "files": [
-    "dist/"
-  ],
-  "type": "module",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
-  "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
-    }
-  },
-  "scripts": {
-    "build": "tsc",
-    "start": "node dist/index.js",
-    "lint": "oxlint --type-aware",
-    "format": "oxfmt --write",
-    "prepare": "git config core.hooksPath .githooks",
-    "test": "bun test",
-    "validate": "npm run lint && npm run test"
-  },
-  "dependencies": {
-    "inflection": "3.0.2"
-  },
-  "devDependencies": {
-    "@types/node": "catalog:",
-    "oxfmt": "catalog:",
-    "oxlint": "catalog:",
-    "oxlint-tsgolint": "catalog:",
-    "typescript": "catalog:",
-    "ultracite": "catalog:"
-  },
-  "peerDependencies": {
-    "zod": "^4.0.0"
-  },
-  "engines": {
-    "bun": ">=1.4.0"
-  },
-  "packageManager": "bun@1.4.0",
-  "catalog": {
-    "@types/node": "26.3.0",
-    "inflection": "3.0.2",
-    "oxfmt": "0.65.0",
-    "oxlint": "1.79.0",
-    "oxlint-tsgolint": "7.0.2001",
-    "typescript": "7.0.2",
-    "ultracite": "7.10.6"
-  }
+	"name": "zod-to-protobuf",
+	"version": "2.10.3",
+	"description": "A utility to convert Zod schemas to Protocol Buffers definitions.",
+	"keywords": [
+		"conversion",
+		"protobuf",
+		"schema",
+		"typescript",
+		"zod"
+	],
+	"homepage": "https://github.com/brandhaug/zod-to-protobuf#readme",
+	"bugs": {
+		"url": "https://github.com/brandhaug/zod-to-protobuf/issues"
+	},
+	"license": "MIT",
+	"author": "Martin Brandhaug",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/brandhaug/zod-to-protobuf.git"
+	},
+	"workspaces": [],
+	"files": [
+		"dist/"
+	],
+	"type": "module",
+	"main": "dist/index.js",
+	"types": "dist/index.d.ts",
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"import": "./dist/index.js"
+		}
+	},
+	"scripts": {
+		"build": "tsc",
+		"start": "node dist/index.js",
+		"lint": "oxlint --type-aware",
+		"format": "oxfmt --write",
+		"prepare": "git config core.hooksPath .githooks",
+		"test": "bun test",
+		"validate": "npm run lint && npm run test"
+	},
+	"dependencies": {
+		"inflection": "3.0.2"
+	},
+	"devDependencies": {
+		"@types/node": "catalog:",
+		"oxfmt": "catalog:",
+		"oxlint": "catalog:",
+		"oxlint-tsgolint": "catalog:",
+		"typescript": "catalog:",
+		"ultracite": "catalog:"
+	},
+	"peerDependencies": {
+		"zod": "^4.0.0"
+	},
+	"engines": {
+		"bun": ">=1.4.0"
+	},
+	"packageManager": "bun@1.4.0",
+	"catalog": {
+		"@types/node": "26.3.0",
+		"inflection": "3.0.2",
+		"oxfmt": "0.65.0",
+		"oxlint": "1.79.0",
+		"oxlint-tsgolint": "7.0.2001",
+		"typescript": "7.0.2",
+		"ultracite": "7.10.6"
+	}
 }
