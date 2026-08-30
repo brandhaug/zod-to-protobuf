@@ -2,6 +2,9 @@
 	// ultracite is used: .oxlintrc.json loads its bundled anti-slop plugin via a
 	// node_modules path specifier, which static analysis cannot see as a usage.
 	"$schema": "https://raw.githubusercontent.com/fallow-rs/fallow/main/schema.json",
+	"rules": {
+		"circular-dependencies": "error"
+	},
 	"ignoreDependencies": ["ultracite"],
 	"regression": {
 		"baseline": {
