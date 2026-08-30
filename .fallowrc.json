@@ -1,5 +1,8 @@
 {
+	// ultracite is used: .oxlintrc.json loads its bundled anti-slop plugin via a
+	// node_modules path specifier, which static analysis cannot see as a usage.
 	"$schema": "https://raw.githubusercontent.com/fallow-rs/fallow/main/schema.json",
+	"ignoreDependencies": ["ultracite"],
 	"regression": {
 		"baseline": {
 			"analysisIdentity": {
@@ -10,12 +13,12 @@
 				"backend_family": "",
 				"completeness": "complete"
 			},
-			"totalIssues": 3,
-			"unusedFiles": 1,
+			"totalIssues": 0,
+			"unusedFiles": 0,
 			"unusedExports": 0,
 			"unusedTypes": 0,
 			"unusedDependencies": 0,
-			"unusedDevDependencies": 1,
+			"unusedDevDependencies": 0,
 			"unusedOptionalDependencies": 0,
 			"unusedEnumMembers": 0,
 			"unusedClassMembers": 0,
@@ -32,10 +35,5 @@
 			"boundaryCallViolations": 0,
 			"policyViolations": 0
 		}
-	},
-	"rules": {
-		"unused-catalog-entries": "warn",
-		"unused-dependencies": "warn",
-		"unused-files": "warn"
 	}
 }

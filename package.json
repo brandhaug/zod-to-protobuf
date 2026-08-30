@@ -62,7 +62,6 @@
 	"packageManager": "bun@1.4.0",
 	"catalog": {
 		"@types/node": "26.4.0",
-		"inflection": "3.0.2",
 		"oxfmt": "0.65.0",
 		"oxlint": "1.80.0",
 		"oxlint-tsgolint": "7.0.2001",
