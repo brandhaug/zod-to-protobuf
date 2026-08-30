@@ -66,6 +66,6 @@
     "oxlint": "1.79.0",
     "oxlint-tsgolint": "7.0.2001",
     "typescript": "7.0.2",
-    "ultracite": "7.10.6"
+    "ultracite": "7.10.7"
   }
 }
