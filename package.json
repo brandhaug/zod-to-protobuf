@@ -61,7 +61,7 @@
   },
   "packageManager": "bun@1.4.2",
   "catalog": {
-    "@types/node": "26.5.1",
+    "@types/node": "26.6.1",
     "oxfmt": "0.68.0",
     "oxlint": "1.83.0",
     "oxlint-tsgolint": "7.0.2001",
