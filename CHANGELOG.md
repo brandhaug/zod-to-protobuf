@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.10.8](https://github.com/brandhaug/zod-to-protobuf/compare/zod-to-protobuf-v2.10.7...zod-to-protobuf-v2.10.8) (2026-10-01)
+
+
+### Miscellaneous
+
+* **deps:** bump ultracite from 7.12.0 to 7.12.1 ([#67](https://github.com/brandhaug/zod-to-protobuf/issues/67)) ([ec26fb1](https://github.com/brandhaug/zod-to-protobuf/commit/ec26fb12747e9d292179247b1cc085cce9a007e8))
+
 ## [2.10.7](https://github.com/brandhaug/zod-to-protobuf/compare/zod-to-protobuf-v2.10.6...zod-to-protobuf-v2.10.7) (2026-09-29)
 
 
