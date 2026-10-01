@@ -1,5 +1,16 @@
 # Changelog
 
+## [2.10.7](https://github.com/brandhaug/zod-to-protobuf/compare/zod-to-protobuf-v2.10.6...zod-to-protobuf-v2.10.7) (2026-09-29)
+
+
+### Miscellaneous
+
+* **deps:** bump @types/node from 26.6.1 to 26.6.2 ([#61](https://github.com/brandhaug/zod-to-protobuf/issues/61)) ([cd77125](https://github.com/brandhaug/zod-to-protobuf/commit/cd771254582e4bec5f88412f770e15db56f52334))
+* **deps:** bump @types/node from 26.6.2 to 26.6.3 ([#66](https://github.com/brandhaug/zod-to-protobuf/issues/66)) ([75e5557](https://github.com/brandhaug/zod-to-protobuf/commit/75e5557b129ea12c19114486b982bbf0dff0573d))
+* **deps:** bump oxfmt from 0.68.0 to 0.70.0 ([#63](https://github.com/brandhaug/zod-to-protobuf/issues/63)) ([b0b2e52](https://github.com/brandhaug/zod-to-protobuf/commit/b0b2e523e84e2ed5eda76c1d1ca45c174abb2d46))
+* **deps:** bump oxlint from 1.83.0 to 1.85.0 ([#64](https://github.com/brandhaug/zod-to-protobuf/issues/64)) ([6b6c9d0](https://github.com/brandhaug/zod-to-protobuf/commit/6b6c9d0975ca8a904d8d74cd5d5fa083a7ad7bb0))
+* **deps:** bump oxlint-tsgolint from 7.0.2002 to 7.0.2003 ([#65](https://github.com/brandhaug/zod-to-protobuf/issues/65)) ([c8d7e2c](https://github.com/brandhaug/zod-to-protobuf/commit/c8d7e2c57c34a258c19c1d0501b7822c40ceaad6))
+
 ## [2.10.6](https://github.com/brandhaug/zod-to-protobuf/compare/zod-to-protobuf-v2.10.5...zod-to-protobuf-v2.10.6) (2026-09-21)
 
 
