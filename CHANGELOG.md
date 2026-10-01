@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.10.9](https://github.com/brandhaug/zod-to-protobuf/compare/zod-to-protobuf-v2.10.8...zod-to-protobuf-v2.10.9) (2026-10-01)
+
+
+### Miscellaneous
+
+* **deps:** bump oxfmt from 0.70.0 to 0.71.0 ([#69](https://github.com/brandhaug/zod-to-protobuf/issues/69)) ([2b3d4c8](https://github.com/brandhaug/zod-to-protobuf/commit/2b3d4c83be31e12131ff3757d062894a01359aea))
+* **deps:** bump oxlint from 1.85.0 to 1.86.0 ([#70](https://github.com/brandhaug/zod-to-protobuf/issues/70)) ([05da206](https://github.com/brandhaug/zod-to-protobuf/commit/05da206988d6170f031730910e2a73bcaaee8cde))
+
 ## [2.10.8](https://github.com/brandhaug/zod-to-protobuf/compare/zod-to-protobuf-v2.10.7...zod-to-protobuf-v2.10.8) (2026-10-01)
 
 
