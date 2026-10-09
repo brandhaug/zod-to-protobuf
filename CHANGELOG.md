@@ -1,5 +1,22 @@
 # Changelog
 
+## [2.10.10](https://github.com/brandhaug/zod-to-protobuf/compare/zod-to-protobuf-v2.10.9...zod-to-protobuf-v2.10.10) (2026-10-09)
+
+
+### Bug Fixes
+
+* **security:** override 1 vulnerable transitive dependency ([#75](https://github.com/brandhaug/zod-to-protobuf/issues/75)) ([ad1450c](https://github.com/brandhaug/zod-to-protobuf/commit/ad1450c9d095081aed779d318c2e2e6e712ab8d0))
+
+
+### Miscellaneous
+
+* **deps:** bump @types/node from 26.6.3 to 26.6.4 ([#74](https://github.com/brandhaug/zod-to-protobuf/issues/74)) ([13a69dc](https://github.com/brandhaug/zod-to-protobuf/commit/13a69dca0280a7e5b5db65d0eea3cd93c2170ade))
+* **deps:** bump oxfmt from 0.71.0 to 0.72.0 ([#76](https://github.com/brandhaug/zod-to-protobuf/issues/76)) ([fd0bf44](https://github.com/brandhaug/zod-to-protobuf/commit/fd0bf44c64a49b4625ebe96c2fd9a433b157852d))
+* **deps:** bump oxlint from 1.86.0 to 1.87.0 ([#77](https://github.com/brandhaug/zod-to-protobuf/issues/77)) ([9389fa4](https://github.com/brandhaug/zod-to-protobuf/commit/9389fa41b40427aaf44326482942909f94e866d7))
+* **deps:** bump ultracite from 7.12.1 to 7.12.2 ([#72](https://github.com/brandhaug/zod-to-protobuf/issues/72)) ([84cae7f](https://github.com/brandhaug/zod-to-protobuf/commit/84cae7f5e16200d942395b477efcc93a594eff7e))
+* **deps:** bump ultracite from 7.12.2 to 7.12.3 ([#78](https://github.com/brandhaug/zod-to-protobuf/issues/78)) ([d2cbfdd](https://github.com/brandhaug/zod-to-protobuf/commit/d2cbfddf9c02738e4244a55487b11d6c94f611d8))
+* **deps:** bump ultracite from 7.12.3 to 7.12.4 ([#79](https://github.com/brandhaug/zod-to-protobuf/issues/79)) ([c7c465e](https://github.com/brandhaug/zod-to-protobuf/commit/c7c465eb24554df009b84ad8c1b863ba2b912575))
+
 ## [2.10.9](https://github.com/brandhaug/zod-to-protobuf/compare/zod-to-protobuf-v2.10.8...zod-to-protobuf-v2.10.9) (2026-10-01)
 
 
