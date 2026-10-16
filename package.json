@@ -63,7 +63,7 @@
   "catalog": {
     "@types/node": "26.6.5",
     "oxfmt": "0.72.0",
-    "oxlint": "1.87.0",
+    "oxlint": "1.88.0",
     "oxlint-tsgolint": "7.0.2004",
     "typescript": "7.0.2",
     "ultracite": "8.0.0"
