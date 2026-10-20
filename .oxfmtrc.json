@@ -10,5 +10,9 @@
 	"arrowParens": "always",
 	"bracketSameLine": false,
 	"bracketSpacing": true,
-	"ignorePatterns": ["CHANGELOG.md"]
+	"ignorePatterns": [
+		"CHANGELOG.md",
+		"tooling/anti-slop/plugin.mjs",
+		"tooling/anti-slop/license.md"
+	]
 }
