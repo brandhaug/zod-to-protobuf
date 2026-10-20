@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.10.11](https://github.com/brandhaug/zod-to-protobuf/compare/zod-to-protobuf-v2.10.10...zod-to-protobuf-v2.10.11) (2026-10-20)
+
+
+### Miscellaneous
+
+* **deps:** group coupled catalog updates ([#87](https://github.com/brandhaug/zod-to-protobuf/issues/87)) ([3bec574](https://github.com/brandhaug/zod-to-protobuf/commit/3bec574848c086d36ff075a9883c559c0560c3c7))
+
 ## [2.10.10](https://github.com/brandhaug/zod-to-protobuf/compare/zod-to-protobuf-v2.10.9...zod-to-protobuf-v2.10.10) (2026-10-20)
 
 
