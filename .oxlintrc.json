@@ -4,10 +4,8 @@
 	"jsPlugins": [
 		{
 			"name": "anti-slop",
-			// ultracite bundles the anti-slop plugin (upstream dmmulroy/anti-slop is
-			// copy-the-source, not published to npm). plugin.mjs is not in ultracite's
-			// exports map, so the specifier has to be a path.
-			"specifier": "./node_modules/ultracite/config/oxlint/anti-slop/plugin.mjs"
+			// Source, license and update instructions: tooling/anti-slop/README.md.
+			"specifier": "./tooling/anti-slop/plugin.mjs"
 		}
 	],
 	"options": {
@@ -31,7 +29,7 @@
 		"es2024": true,
 		"builtin": true
 	},
-	"ignorePatterns": ["dist/**", "node_modules/**"],
+	"ignorePatterns": ["dist/**", "node_modules/**", "tooling/anti-slop/**"],
 	"rules": {
 		"eqeqeq": "error",
 		// The library is synchronous; an await inside a loop is either a serialisation bug

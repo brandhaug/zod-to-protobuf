@@ -12,17 +12,18 @@
 bun install
 ```
 
-**Bun >= 1.4 required** (`engines`, CI pins 1.4.2). Dependency versions are pinned via the `catalog` block in `package.json`; dep bumps flow through the catalog-update automation.
+**Bun >= 1.4.3 required** for `bun check`. Dependency versions are pinned via the `catalog` block in `package.json`; dep bumps flow through the catalog-update automation.
 
 ## Development Commands
 
-| Command            | Description                       |
-| ------------------ | --------------------------------- |
-| `npm run build`    | Compile TypeScript to `dist/`     |
-| `npm run lint`     | Run oxlint with type-aware checks |
-| `npm run format`   | Format with oxfmt (write mode)    |
-| `npm test`         | Run Bun tests                     |
-| `npm run validate` | Lint + tests                      |
+| Command             | Description                          |
+| ------------------- | ------------------------------------ |
+| `npm run build`     | Compile TypeScript to `dist/`        |
+| `npm run lint`      | Run oxlint with type-aware checks    |
+| `npm run typecheck` | Check types with Bun                 |
+| `npm run format`    | Format with oxfmt (write mode)       |
+| `npm test`          | Run Bun tests                        |
+| `npm run validate`  | Lint + typecheck + tests + dead code |
 
 ## Testing
 
@@ -32,12 +33,12 @@ Tests compare generated protobuf output strings against expected values. Always 
 
 ## Code Standards
 
-- Strict oxlint with anti-slop rules (ultracite plugin): `src/` must stay lint-clean. Prefer real refactors over suppressions.
+- Strict oxlint with anti-slop rules: `src/` must stay lint-clean. Prefer real refactors over suppressions. The plugin is vendored; see [tooling/anti-slop/README.md](tooling/anti-slop/README.md) before updating it.
 - Formatting is enforced only by the git pre-commit hook (`.githooks/pre-commit`: `oxfmt --write` + `oxlint --fix`), never in CI.
 
 ## PR Guidelines
 
-- Target branch: `master`. CI runs lint + tests + build; run `npm run validate` before submitting.
+- Target branch: `master`. CI runs lint + typecheck + tests + build; run `npm run validate` before submitting. Keep `tsc` for JavaScript and declaration output; `bun check` does not emit files.
 
 ## Commit & Release Conventions
 
