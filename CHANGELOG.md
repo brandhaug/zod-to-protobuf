@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.10.12](https://github.com/brandhaug/zod-to-protobuf/compare/zod-to-protobuf-v2.10.11...zod-to-protobuf-v2.10.12) (2026-10-22)
+
+
+### Miscellaneous
+
+* **deps:** bump oxc dependencies ([#90](https://github.com/brandhaug/zod-to-protobuf/issues/90)) ([dad19db](https://github.com/brandhaug/zod-to-protobuf/commit/dad19db720b38fa052f5703f64faabb3b26b653b))
+* **tooling:** upgrade Bun to 1.4.4 ([#89](https://github.com/brandhaug/zod-to-protobuf/issues/89)) ([a6223cf](https://github.com/brandhaug/zod-to-protobuf/commit/a6223cfe1ad317f6ea3d6dacd397b153bb9dc386))
+
 ## [2.10.11](https://github.com/brandhaug/zod-to-protobuf/compare/zod-to-protobuf-v2.10.10...zod-to-protobuf-v2.10.11) (2026-10-20)
 
 
