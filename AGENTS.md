@@ -12,7 +12,7 @@
 bun install
 ```
 
-**Bun >= 1.4.3 required** for `bun check`. Dependency versions are pinned via the `catalog` block in `package.json`; dep bumps flow through the catalog-update automation.
+**Bun >= 1.4.4 required** for `bun check`. Dependency versions are pinned via the `catalog` block in `package.json`; dep bumps flow through the catalog-update automation.
 
 ## Development Commands
 
