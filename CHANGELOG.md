@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.10.13](https://github.com/brandhaug/zod-to-protobuf/compare/zod-to-protobuf-v2.10.12...zod-to-protobuf-v2.10.13) (2026-10-24)
+
+
+### Bug Fixes
+
+* **security:** override 1 vulnerable transitive dependency ([#92](https://github.com/brandhaug/zod-to-protobuf/issues/92)) ([ddd8728](https://github.com/brandhaug/zod-to-protobuf/commit/ddd8728e6bfdfac4fcf536254e27dff60509add1))
+
 ## [2.10.12](https://github.com/brandhaug/zod-to-protobuf/compare/zod-to-protobuf-v2.10.11...zod-to-protobuf-v2.10.12) (2026-10-22)
 
 
