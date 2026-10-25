@@ -1,6 +1,6 @@
 {
 	"name": "zod-to-protobuf",
-	"version": "2.10.12",
+	"version": "2.10.13",
 	"description": "A utility to convert Zod schemas to Protocol Buffers definitions.",
 	"keywords": [
 		"conversion",
