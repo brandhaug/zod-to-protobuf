@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.10.14](https://github.com/brandhaug/zod-to-protobuf/compare/zod-to-protobuf-v2.10.13...zod-to-protobuf-v2.10.14) (2026-10-30)
+
+
+### Miscellaneous
+
+* **deps:** bump oxc dependencies ([#96](https://github.com/brandhaug/zod-to-protobuf/issues/96)) ([3d84afd](https://github.com/brandhaug/zod-to-protobuf/commit/3d84afd9ff1b6ce1f0af4d4eeff4921cb252d91c))
+* **deps:** bump oxlint-tsgolint from 7.0.2004 to 7.0.2005 ([#94](https://github.com/brandhaug/zod-to-protobuf/issues/94)) ([d0996e7](https://github.com/brandhaug/zod-to-protobuf/commit/d0996e7f199c2fffd3c700b6332fe609068a4d61))
+
 ## [2.10.13](https://github.com/brandhaug/zod-to-protobuf/compare/zod-to-protobuf-v2.10.12...zod-to-protobuf-v2.10.13) (2026-10-24)
 
 
