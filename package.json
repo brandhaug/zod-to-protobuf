@@ -62,9 +62,9 @@
 	"packageManager": "bun@1.4.4",
 	"catalog": {
 		"@types/node": "26.6.6",
-		"oxfmt": "0.76.0",
-		"oxlint": "1.91.0",
-		"oxlint-tsgolint": "7.0.2005",
+		"oxfmt": "0.77.0",
+		"oxlint": "1.92.0",
+		"oxlint-tsgolint": "7.0.2006",
 		"typescript": "7.0.2"
 	},
 	"overrides": {
