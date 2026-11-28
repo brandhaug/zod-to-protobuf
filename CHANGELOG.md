@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.10.15](https://github.com/brandhaug/zod-to-protobuf/compare/zod-to-protobuf-v2.10.14...zod-to-protobuf-v2.10.15) (2026-11-28)
+
+
+### Miscellaneous
+
+* **deps:** bump @types/node from 26.6.6 to 26.6.10 ([#107](https://github.com/brandhaug/zod-to-protobuf/issues/107)) ([56b82d4](https://github.com/brandhaug/zod-to-protobuf/commit/56b82d4d136e13b0f1d5e9ec7c0c8f9322425aa1))
+* **deps:** bump oxc dependencies ([#105](https://github.com/brandhaug/zod-to-protobuf/issues/105)) ([8466711](https://github.com/brandhaug/zod-to-protobuf/commit/8466711583ee10dfd7bcbb8fce110f7b51f9cf60))
+
 ## [2.10.14](https://github.com/brandhaug/zod-to-protobuf/compare/zod-to-protobuf-v2.10.13...zod-to-protobuf-v2.10.14) (2026-11-24)
 
 
